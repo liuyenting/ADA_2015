@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <parallel/algorithm> // __gnu_parallel::sort
-//#include <algorithm> // std::sort
+#include <algorithm> // std::sort
 #include <iterator>  // std::begin, std::end
 #include <numeric>   // std::iota
 
@@ -41,13 +40,14 @@ struct queue_comparer
 	int n;             // number of people
 	long long c, p;          // c:constant, p:modulus
 	long long e;       // e:exponent
+	float p2;
 
 	bool operator()(const long long& i, const long long& j)
 	{
 		// ab mod n = ((a mod n)(b mod n)) mod n;
 		long long var = (wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p;
 		// var > 2*p -> 2*var > p
-		return 2 * var > p;
+		return var > p2;
 	}
 };
 
@@ -69,12 +69,13 @@ int main(void)
 
 		// read the values and prep them.
 		std::cin >> comparer.n >> comparer.c >> comparer.e >> comparer.p;
+		comparer.p2 = comparer.p >> 1;
 
 		// resize the queue and fill with numbers
 		queue.resize(comparer.n);
 		std::iota(std::begin(queue), std::end(queue), 1);
 
-		__gnu_parallel::sort(queue.begin(), queue.end(), comparer);
+		std::sort(queue.begin(), queue.end(), comparer);
 
 		// print out the result
 		for (auto i = queue.begin(); i != queue.end(); ++i)
