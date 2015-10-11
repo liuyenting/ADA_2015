@@ -6,7 +6,9 @@
 
 #define MAX_N 200000
 
-long long pow_n_mod(long long base, long long exponent, long long modulus)
+long long pow_n_mod(const long long& base,
+                    const long long& exponent,
+                    const long long& modulus)
 {
 	long long product = 1;
 
@@ -27,7 +29,7 @@ long long pow_n_mod(long long base, long long exponent, long long modulus)
 	return product;
 }
 
-long long wrapped_mod(long long i, long long i_max)
+long long wrapped_mod(const long long& i, const long long& i_max)
 {
 	i %= i_max;
 	return (i < 0) ? i+i_max : i;
@@ -46,14 +48,6 @@ struct queue_comparer
 		long long second = pow_n_mod(i+j, e, p);
 		long long var = (first * second) % p;
 
-		/*
-		   std::cerr << "i = " << i << ", j = " << j << std::endl;
-		   std::cerr << "-> " << c << "*(" << i << "-" << j << ")%" << p << " = " << (c*(i-j)) % p << std::endl;
-		   std::cerr << "-> ( (" << i << "+" << j << ")^" << e << " )%" << p << " = " << pow_n_mod(i+j, e, p) << std::endl;
-		   std::cerr << "-> (a*b)%" << p << " = " << var << std::endl << std::endl;
-		 */
-		std::cerr << "first = " << first << ", second = " << second << std::endl;
-		std::cerr << "var = " << var << ", p/2 = " << (float)p/2 << ", var>p/2 = " << (2*var>p) << std::endl;
 		// var > 2*p -> 2*var > p
 		return 2 * var > p;
 	}
