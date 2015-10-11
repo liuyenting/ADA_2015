@@ -76,14 +76,14 @@ int main(void)
 
 	while (cases-- > 0)
 	{
-		std::cerr << "cases " << (cases+1) << std::endl;
+		//std::cerr << "cases " << (cases+1) << std::endl;
 
 		// read the values and prep them.
 		//std::cin >> comparer.n >> comparer.c >> comparer.e >> comparer.p;
 		std::cin >> n >> c >> e >> p;
 		comparer.reset();
 
-		std::cerr << "start" << std::endl;
+		//std::cerr << "start" << std::endl;
 
 		// resize the queue and fill with numbers
 		queue.resize(n);
