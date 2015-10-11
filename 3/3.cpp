@@ -86,8 +86,8 @@ int main(void)
 
 		// print out the result
 		for (auto i = queue.begin(); i != end_it; ++i)
-			std::cout << unitbuf << *i << ' ';
-		std::cout << unitbuf << std::endl;
+			std::cout << std::unitbuf << *i << ' ';
+		std::cout << std::unitbuf << std::endl;
 	}
 
 	return 0;
