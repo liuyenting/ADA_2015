@@ -3,6 +3,7 @@
 #include <algorithm> // std::sort
 #include <iterator>  // std::begin, std::end
 #include <numeric>   // std::iota
+#include <cstring>
 
 #define MAX_N 200000
 
@@ -39,17 +40,14 @@ long long wrapped_mod(long long i, const long long& i_max)
 	return (i < 0) ? i+i_max : i;
 }
 
+char lut[MAX_N][MAX_N];
+void clear_lut(const int& size)
+{
+	memset(lut, 0, sizeof(char) * size * size);
+}
+
 struct queue_comparer
 {
-	long long **lut;
-
-	queue_comparer()
-	{
-		lut = (long long **)calloc(MAX_N, sizeof(long long *));
-		for (int i = 0; i < MAX_N; i++)
-			lut[i] = (long long *)calloc(MAX_N, sizeof(long long));
-	}
-
 	bool operator()(const long long& i, const long long& j)
 	{
 		if (lut[i][j] == 0)
@@ -58,10 +56,6 @@ struct queue_comparer
 			lut[i][j] = (2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p) ? 2 : 1;
 
 		return lut[i][j] == 2;
-	}
-
-	~queue_comparer()
-	{
 	}
 };
 
@@ -84,6 +78,9 @@ int main(void)
 		// read the values and prep them.
 		//std::cin >> comparer.n >> comparer.c >> comparer.e >> comparer.p;
 		std::cin >> n >> c >> e >> p;
+		clear_lut(n);
+
+		std::cerr << "start" << std::endl;
 
 		// resize the queue and fill with numbers
 		queue.resize(n);
