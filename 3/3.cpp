@@ -76,7 +76,7 @@ int main(void)
 		std::cin >> n >> c >> e >> p;
 
 		// reset the lut
-		std::memset(chk, false, sizeof(bool) * 2 * n);
+		std::memset(chk, false, sizeof(bool) * MAX_N);
 
 		// resize the queue and fill with numbers
 		queue.resize(n);
