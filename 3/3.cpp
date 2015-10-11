@@ -11,7 +11,7 @@ static int n;               // number of people
 static long long c, p;      // c:constant, p:modulus
 static long long e;         // e:exponent
 static long long lut[2 * MAX_N];  // lookup table for pow_n_mod
-static bool chk[2 * MAX_N];  // dirty bits
+//static bool chk[2 * MAX_N];  // dirty bits
 
 long long pow_n_mod(long long base,
                     long long exponent,
@@ -46,11 +46,10 @@ struct queue_comparer
 {
 	bool operator()(const long long& i, const long long& j)
 	{
-		if (!chk[i+j-1])
+		if (lut[i+j-1] == -1)
 		{
 			// ab mod n = ((a mod n)(b mod n)) mod n;
 			// var > 2*p -> 2*var > p
-			chk[i+j-1] = true;
 			lut[i+j-1] = pow_n_mod(i+j, e, p);
 			//return (2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p);
 		}
@@ -81,7 +80,7 @@ int main(void)
 		std::advance(end_it, n);
 
 		// reset the lut
-		std::memset(chk, false, sizeof(bool) * 2 * n);
+		std::memset(lut, -1, sizeof(long long) * 2 * n);
 
 		// resize the queue and fill with numbers
 		//queue.resize(n);
