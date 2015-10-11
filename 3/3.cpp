@@ -18,14 +18,14 @@ long long pow_n_mod(long long base,
 {
 	long long product = 1;
 
-	while (exponent > 0)
+	for (; exponent > 0; exponent >>= 1)
 	{
-		if (exponent % 2 == 1)
+		//if (exponent % 2 == 1)
+		if (exponent & 0x01)
 		{
 			product *= base;
 			product %= modulus;
 		}
-		exponent >>= 1;
 
 		// square the base
 		base *= base;
