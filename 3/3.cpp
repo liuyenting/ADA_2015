@@ -4,6 +4,7 @@
 #include <iterator>  // std::begin, std::end
 #include <numeric>   // std::iota
 #include <cstring>
+#include <map>
 
 #define MAX_N 200000
 
@@ -40,22 +41,24 @@ long long wrapped_mod(long long i, const long long& i_max)
 	return (i < 0) ? i+i_max : i;
 }
 
-char lut[MAX_N][MAX_N];
-void clear_lut(const int& size)
-{
-	memset(lut, 0, sizeof(char) * size * size);
-}
-
 struct queue_comparer
 {
+	std::map<std::pair<int, int>, bool> lut;
+
 	bool operator()(const long long& i, const long long& j)
 	{
-		if (lut[i][j] == 0)
+		auto it = lut.find(std::make_pair(i, j));
+		if (it == lut.end())
 			// ab mod n = ((a mod n)(b mod n)) mod n;
 			// var > 2*p -> 2*var > p
-			lut[i][j] = (2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p) ? 2 : 1;
+			it->second = 2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p;
 
-		return lut[i][j] == 2;
+		return it->second;
+	}
+
+	void reset()
+	{
+		lut.clear();
 	}
 };
 
@@ -78,7 +81,7 @@ int main(void)
 		// read the values and prep them.
 		//std::cin >> comparer.n >> comparer.c >> comparer.e >> comparer.p;
 		std::cin >> n >> c >> e >> p;
-		clear_lut(n);
+		comparer.reset();
 
 		std::cerr << "start" << std::endl;
 
