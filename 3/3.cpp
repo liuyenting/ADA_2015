@@ -29,7 +29,7 @@ long long pow_n_mod(long long base,
 	return product;
 }
 
-long long wrapped_mod(const long long& i, const long long& i_max)
+long long wrapped_mod(long long i, const long long& i_max)
 {
 	i %= i_max;
 	return (i < 0) ? i+i_max : i;
