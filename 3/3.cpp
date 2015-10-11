@@ -38,10 +38,10 @@ long long wrapped_mod(long long i, const long long& i_max)
 struct queue_comparer
 {
 	int n;             // number of people
-	int c, p;          // c:constant, p:modulus, p2:criterion
+	long long c, p;          // c:constant, p:modulus
 	long long e;       // e:exponent
 
-	bool operator()(const int& i, const int& j)
+	bool operator()(const long long& i, const long long& j)
 	{
 		// ab mod n = ((a mod n)(b mod n)) mod n;
 		long long var = (wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p;
