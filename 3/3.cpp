@@ -6,6 +6,11 @@
 
 #define MAX_N 200000
 
+static int n;             // number of people
+static long long c, p;          // c:constant, p:modulus
+static long long e;       // e:exponent
+static long long lut[MAX_N][MAX_N] = {{-1}}; // i fight j
+
 long long pow_n_mod(long long base,
                     long long exponent,
                     const int& modulus)
@@ -35,17 +40,16 @@ long long wrapped_mod(long long i, const long long& i_max)
 	return (i < 0) ? i+i_max : i;
 }
 
-static int n;             // number of people
-static long long c, p;          // c:constant, p:modulus
-static long long e;       // e:exponent
-
 struct queue_comparer
 {
 	bool operator()(const long long& i, const long long& j)
 	{
-		// ab mod n = ((a mod n)(b mod n)) mod n;
-		// var > 2*p -> 2*var > p
-		return 2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p;
+		if (lut[i][j] == -1)
+			// ab mod n = ((a mod n)(b mod n)) mod n;
+			// var > 2*p -> 2*var > p
+			lut[i][j] = 2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p;
+
+		return lut[i][j];
 	}
 };
 
