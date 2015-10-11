@@ -11,7 +11,6 @@ static int n;               // number of people
 static long long c, p;      // c:constant, p:modulus
 static long long e;         // e:exponent
 static long long lut[2 * MAX_N];  // lookup table for pow_n_mod
-//static bool chk[2 * MAX_N];  // dirty bits
 
 long long pow_n_mod(long long base,
                     long long exponent,
@@ -37,8 +36,6 @@ long long pow_n_mod(long long base,
 
 inline long long wrapped_mod(long long i, const long long& i_max)
 {
-	//i %= i_max;
-	//return (i < 0) ? i+i_max : i;
 	return (i % i_max + i_max) % i_max;
 }
 
@@ -51,7 +48,6 @@ struct queue_comparer
 			// ab mod n = ((a mod n)(b mod n)) mod n;
 			// var > 2*p -> 2*var > p
 			lut[i+j-1] = pow_n_mod(i+j, e, p);
-			//return (2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p);
 		}
 
 		return (2 * ((wrapped_mod(c*(i-j), p) * lut[i+j-1]) % p) > p);
@@ -82,9 +78,7 @@ int main(void)
 		// reset the lut
 		std::memset(lut, -1, sizeof(long long) * 2 * n);
 
-		// resize the queue and fill with numbers
-		//queue.resize(n);
-		//std::iota(std::begin(queue), std::end(queue), 1);
+		// fill with ids
 		std::iota(queue.begin(), end_it, 1);
 
 		//std::sort(queue.begin(), queue.end(), comparer);
@@ -92,8 +86,8 @@ int main(void)
 
 		// print out the result
 		for (auto i = queue.begin(); i != end_it; ++i)
-			std::cout << *i << ' ';
-		std::cout << std::endl;
+			std::cout << unitbuf << *i << ' ';
+		std::cout << unitbuf << std::endl;
 	}
 
 	return 0;
