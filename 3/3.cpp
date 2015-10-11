@@ -39,20 +39,17 @@ inline long long wrapped_mod(long long i, const long long& i_max)
 	return (i % i_max + i_max) % i_max;
 }
 
-struct queue_comparer
+bool comparer(const long long& i, const long long& j)
 {
-	bool operator()(const long long& i, const long long& j)
+	if (lut[i+j-1] == -1)
 	{
-		if (lut[i+j-1] == -1)
-		{
-			// ab mod n = ((a mod n)(b mod n)) mod n;
-			// var > 2*p -> 2*var > p
-			lut[i+j-1] = pow_n_mod(i+j, e, p);
-		}
-
-		return (2 * ((wrapped_mod(c*(i-j), p) * lut[i+j-1]) % p) > p);
+		// ab mod n = ((a mod n)(b mod n)) mod n;
+		// var > 2*p -> 2*var > p
+		lut[i+j-1] = pow_n_mod(i+j, e, p);
 	}
-};
+
+	return (2 * ((wrapped_mod(c*(i-j), p) * lut[i+j-1]) % p) > p);
+}
 
 int main(void)
 {
@@ -62,9 +59,6 @@ int main(void)
 	// pre-allocate the maximum possible size of the queue.
 	std::vector<int> queue(MAX_N), sequence(MAX_N);
 	std::iota(sequence.begin(), sequence.end(), 1);
-
-	// setup the comparer.
-	queue_comparer comparer;
 
 	while (cases-- > 0)
 	{
