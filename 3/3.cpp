@@ -20,7 +20,6 @@ long long pow_n_mod(long long base,
 
 	for (; exponent > 0; exponent >>= 1)
 	{
-		//if (exponent % 2 == 1)
 		if (exponent & 0x01)
 		{
 			product *= base;
@@ -43,22 +42,11 @@ long long wrapped_mod(long long i, const long long& i_max)
 
 struct queue_comparer
 {
-	std::map<std::pair<int, int>, bool> lut;
-
 	bool operator()(const long long& i, const long long& j)
 	{
-		auto it = lut.find(std::make_pair(i, j));
-		if (it == lut.end())
-			// ab mod n = ((a mod n)(b mod n)) mod n;
-			// var > 2*p -> 2*var > p
-			it->second = 2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p;
-
-		return it->second;
-	}
-
-	void reset()
-	{
-		lut.clear();
+		// ab mod n = ((a mod n)(b mod n)) mod n;
+		// var > 2*p -> 2*var > p
+		return 2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p;
 	}
 };
 
@@ -81,7 +69,6 @@ int main(void)
 		// read the values and prep them.
 		//std::cin >> comparer.n >> comparer.c >> comparer.e >> comparer.p;
 		std::cin >> n >> c >> e >> p;
-		comparer.reset();
 
 		//std::cerr << "start" << std::endl;
 
