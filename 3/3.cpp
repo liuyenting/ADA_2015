@@ -44,10 +44,7 @@ struct queue_comparer
 	bool operator()(const long long& i, const long long& j)
 	{
 		// ab mod n = ((a mod n)(b mod n)) mod n;
-		long long first = wrapped_mod(c*(i-j), p);
-		long long second = pow_n_mod(i+j, e, p);
-		long long var = (first * second) % p;
-
+		long long var = (wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p;
 		// var > 2*p -> 2*var > p
 		return 2 * var > p;
 	}
