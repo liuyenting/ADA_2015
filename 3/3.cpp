@@ -43,18 +43,17 @@ long long wrapped_mod(long long i, const long long& i_max)
 
 struct queue_comparer
 {
-	char dummy;
 	bool operator()(const long long& i, const long long& j)
 	{
-		if (!chk[i+j])
-		{
-			// ab mod n = ((a mod n)(b mod n)) mod n;
-			// var > 2*p -> 2*var > p
-			lut[i+j] = (2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p);
-			chk[i+j] = 1;
-		}
+		//if (!chk[i+j])
+		//{
+		// ab mod n = ((a mod n)(b mod n)) mod n;
+		// var > 2*p -> 2*var > p
+		return (2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p);
+		//	chk[i+j] = 1;
+		//}
 
-		return lut[i+j];
+		//return lut[i+j];
 	}
 };
 
@@ -76,7 +75,7 @@ int main(void)
 		std::cin >> n >> c >> e >> p;
 
 		// reset the lut
-		std::memset(chk, 0, sizeof(int) * 2 * n);
+		//std::memset(chk, 0, sizeof(int) * 2 * n);
 
 		// resize the queue and fill with numbers
 		queue.resize(n);
