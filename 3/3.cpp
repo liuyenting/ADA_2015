@@ -9,7 +9,7 @@
 static int n;             // number of people
 static long long c, p;          // c:constant, p:modulus
 static long long e;       // e:exponent
-static long long lut[MAX_N][MAX_N] = {{-1}}; // i fight j
+static int lut[MAX_N][MAX_N] = {{-1}}; // i fight j
 
 long long pow_n_mod(long long base,
                     long long exponent,
