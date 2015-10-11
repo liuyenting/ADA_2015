@@ -35,12 +35,12 @@ long long wrapped_mod(long long i, const long long& i_max)
 	return (i < 0) ? i+i_max : i;
 }
 
+static int n;             // number of people
+static long long c, p;          // c:constant, p:modulus
+static long long e;       // e:exponent
+
 struct queue_comparer
 {
-	int n;             // number of people
-	long long c, p;          // c:constant, p:modulus
-	long long e;       // e:exponent
-
 	bool operator()(const long long& i, const long long& j)
 	{
 		// ab mod n = ((a mod n)(b mod n)) mod n;
@@ -66,10 +66,11 @@ int main(void)
 		std::cerr << "cases " << (cases+1) << std::endl;
 
 		// read the values and prep them.
-		std::cin >> comparer.n >> comparer.c >> comparer.e >> comparer.p;
+		//std::cin >> comparer.n >> comparer.c >> comparer.e >> comparer.p;
+		std::cin >> n >> c >> e >> p;
 
 		// resize the queue and fill with numbers
-		queue.resize(comparer.n);
+		queue.resize(n);
 		std::iota(std::begin(queue), std::end(queue), 1);
 
 		std::sort(queue.begin(), queue.end(), comparer);
