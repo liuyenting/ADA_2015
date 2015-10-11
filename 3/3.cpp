@@ -8,7 +8,7 @@
 
 long long pow_n_mod(long long base,
                     long long exponent,
-                    long long& modulus)
+                    const int& modulus)
 {
 	long long product = 1;
 
@@ -37,11 +37,11 @@ long long wrapped_mod(long long i, const long long& i_max)
 
 struct queue_comparer
 {
-	long long n;             // number of people
-	long long c, p;          // c:constant, p:modulus, p2:criterion
-	long long e;          // e:exponent
+	int n;             // number of people
+	int c, p;          // c:constant, p:modulus, p2:criterion
+	long long e;       // e:exponent
 
-	bool operator()(const long long& i, const long long& j)
+	bool operator()(const int& i, const int& j)
 	{
 		// ab mod n = ((a mod n)(b mod n)) mod n;
 		long long var = (wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p;
@@ -56,7 +56,7 @@ int main(void)
 	std::cin >> cases;
 
 	// pre-allocate the maximum possible size of the queue.
-	std::vector<long long> queue;
+	std::vector<int> queue;
 	queue.reserve(MAX_N);
 
 	// setup the comparer.
