@@ -81,8 +81,7 @@ int main(void)
 		// print out the result
 		for (auto i = queue.begin(); i != queue.end(); ++i)
 			std::cout << *i << ' ';
-
-		std::cerr << std::endl << std::endl;
+		std::cout << std::endl;
 	}
 
 	return 0;
