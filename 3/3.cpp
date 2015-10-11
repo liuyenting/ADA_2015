@@ -75,17 +75,23 @@ int main(void)
 		// read the values and prep them.
 		std::cin >> n >> c >> e >> p;
 
+		// get the iterator
+		auto end_it = queue.begin();
+		std::advance(end_it, n);
+
 		// reset the lut
-		std::memset(chk, false, sizeof(bool) * MAX_N);
+		std::memset(chk, false, sizeof(bool) * 2 * n);
 
 		// resize the queue and fill with numbers
-		queue.resize(n);
-		std::iota(std::begin(queue), std::end(queue), 1);
+		//queue.resize(n);
+		//std::iota(std::begin(queue), std::end(queue), 1);
+		std::iota(queue.begin(), end_it, 1);
 
-		std::sort(queue.begin(), queue.end(), comparer);
+		//std::sort(queue.begin(), queue.end(), comparer);
+		std::sort(queue.begin(), end_it, comparer);
 
 		// print out the result
-		for (auto i = queue.begin(); i != queue.end(); ++i)
+		for (auto i = queue.begin(); i != end_it; ++i)
 			std::cout << *i << ' ';
 		std::cout << std::endl;
 	}
