@@ -49,10 +49,10 @@ struct queue_comparer
 		{
 			// ab mod n = ((a mod n)(b mod n)) mod n;
 			// var > 2*p -> 2*var > p
-			lut[i+j] = (char)(2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p);
+			lut[i+j] = (2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p);
 		}
 
-		return (lut[i+j]) ? true : false;
+		return lut[i+j];
 	}
 };
 
