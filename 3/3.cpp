@@ -29,7 +29,7 @@ long long pow_n_mod(long long base,
 	return product;
 }
 
-inline long long wrapped_mod(long long i, const long long& i_max)
+long long wrapped_mod(long long i, const long long& i_max)
 {
 	i %= i_max;
 	return (i < 0) ? i+i_max : i;
@@ -40,14 +40,12 @@ struct queue_comparer
 	int n;             // number of people
 	long long c, p;          // c:constant, p:modulus
 	long long e;       // e:exponent
-	float p2;
 
 	bool operator()(const long long& i, const long long& j)
 	{
 		// ab mod n = ((a mod n)(b mod n)) mod n;
-		long long var = (wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p;
 		// var > 2*p -> 2*var > p
-		return var > p2;
+		return 2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p;
 	}
 };
 
@@ -69,7 +67,6 @@ int main(void)
 
 		// read the values and prep them.
 		std::cin >> comparer.n >> comparer.c >> comparer.e >> comparer.p;
-		comparer.p2 = comparer.p >> 1;
 
 		// resize the queue and fill with numbers
 		queue.resize(comparer.n);
