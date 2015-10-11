@@ -9,7 +9,6 @@
 static int n;             // number of people
 static long long c, p;          // c:constant, p:modulus
 static long long e;       // e:exponent
-static int lut[MAX_N][MAX_N] = {{-1}}; // i fight j
 
 long long pow_n_mod(long long base,
                     long long exponent,
@@ -42,14 +41,27 @@ long long wrapped_mod(long long i, const long long& i_max)
 
 struct queue_comparer
 {
+	long long **lut;
+
+	queue_comparer()
+	{
+		lut = (long long **)calloc(MAX_N, sizeof(long long *));
+		for (int i = 0; i < MAX_N; i++)
+			lut[i] = (long long *)calloc(MAX_N, sizeof(long long));
+	}
+
 	bool operator()(const long long& i, const long long& j)
 	{
-		if (lut[i][j] == -1)
+		if (lut[i][j] == 0)
 			// ab mod n = ((a mod n)(b mod n)) mod n;
 			// var > 2*p -> 2*var > p
-			lut[i][j] = 2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p;
+			lut[i][j] = (2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p) ? 2 : 1;
 
-		return lut[i][j];
+		return lut[i][j] == 2;
+	}
+
+	~queue_comparer()
+	{
 	}
 };
 
