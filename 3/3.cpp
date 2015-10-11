@@ -95,10 +95,6 @@ int main(void)
 		for (auto i = queue.begin(); i != queue.end(); ++i)
 			std::cout << *i << ' ';
 
-		// wipe out the pointer to holded elements,
-		// but not the capacity.
-		queue.clear();
-
 		std::cerr << std::endl << std::endl;
 	}
 
