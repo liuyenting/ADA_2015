@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <algorithm> // std::sort
+#include <parallel/algorithm> // __gnu_parallel::sort
+//#include <algorithm> // std::sort
 #include <iterator>  // std::begin, std::end
 #include <numeric>   // std::iota
 
@@ -73,7 +74,7 @@ int main(void)
 		queue.resize(comparer.n);
 		std::iota(std::begin(queue), std::end(queue), 1);
 
-		std::sort(queue.begin(), queue.end(), comparer);
+		__gnu_parallel::sort(queue.begin(), queue.end(), comparer);
 
 		// print out the result
 		for (auto i = queue.begin(); i != queue.end(); ++i)
