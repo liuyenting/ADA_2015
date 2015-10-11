@@ -82,21 +82,7 @@ int main(void)
 		queue.resize(comparer.n);
 		std::iota(std::begin(queue), std::end(queue), 1);
 
-		//std::sort(queue.begin(), queue.end(), comparer);
-		bool sortDone = 0;
-		while (sortDone == 0)
-		{
-			sortDone = 1;
-			for (int i = 0; i < queue.size() - 1; i++)
-			{
-				if (comparer(queue[i + 1], queue[i])) {
-					long long j = queue[i + 1];
-					queue[i + 1] = queue[i];
-					queue[i] = j;
-					sortDone = 0;
-				}
-			}
-		}
+		std::sort(queue.begin(), queue.end(), comparer);
 
 		// print out the result
 		for (auto i = queue.begin(); i != queue.end(); ++i)
