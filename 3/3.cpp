@@ -6,9 +6,9 @@
 
 #define MAX_N 200000
 
-long long pow_n_mod(const long long& base,
-                    const long long& exponent,
-                    const long long& modulus)
+long long pow_n_mod(long long base,
+                    long long exponent,
+                    long long& modulus)
 {
 	long long product = 1;
 
