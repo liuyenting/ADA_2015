@@ -33,7 +33,7 @@ struct queue_comparer
 	unsigned long c, p;          // c:constant, p:modulus, p2:criterion
 	unsigned long long e;        // e:exponent
 
-	bool operator()(const unsigned long long& j, const unsigned long long& i)
+	bool operator()(const unsigned long long& i, const unsigned long long& j)
 	{
 		// ab mod n = ((a mod n)(b mod n)) mod n;
 		long long var = ( ((c*(i-j)) % p) * (pow_n_mod(i+j, e, p)) ) % p;
