@@ -7,9 +7,10 @@
 
 #define MAX_N 200000
 
-static int n;             // number of people
-static long long c, p;          // c:constant, p:modulus
-static long long e;       // e:exponent
+static int n;               // number of people
+static long long c, p;      // c:constant, p:modulus
+static long long e;         // e:exponent
+static char lut[2 * MAX_N];  // lookup table
 
 long long pow_n_mod(long long base,
                     long long exponent,
@@ -41,11 +42,17 @@ long long wrapped_mod(long long i, const long long& i_max)
 
 struct queue_comparer
 {
+	char dummy;
 	bool operator()(const long long& i, const long long& j)
 	{
-		// ab mod n = ((a mod n)(b mod n)) mod n;
-		// var > 2*p -> 2*var > p
-		return 2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p;
+		if (lut[i+j] == -1)
+		{
+			// ab mod n = ((a mod n)(b mod n)) mod n;
+			// var > 2*p -> 2*var > p
+			lut[i+j] = (char)(2 * ((wrapped_mod(c*(i-j), p) * pow_n_mod(i+j, e, p)) % p) > p);
+		}
+
+		return (lut[i+j]) ? true : false;
 	}
 };
 
@@ -66,10 +73,10 @@ int main(void)
 		//std::cerr << "cases " << (cases+1) << std::endl;
 
 		// read the values and prep them.
-		//std::cin >> comparer.n >> comparer.c >> comparer.e >> comparer.p;
 		std::cin >> n >> c >> e >> p;
 
-		//std::cerr << "start" << std::endl;
+		// reset the lut
+		std::memset(lut, -1, sizeof(char) * 2 * n);
 
 		// resize the queue and fill with numbers
 		queue.resize(n);
