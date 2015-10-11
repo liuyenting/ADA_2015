@@ -60,8 +60,8 @@ int main(void)
 	std::cin >> cases;
 
 	// pre-allocate the maximum possible size of the queue.
-	std::vector<int> queue;
-	queue.reserve(MAX_N);
+	std::vector<int> queue(MAX_N), sequence(MAX_N);
+	std::iota(sequence.begin(), sequence.end(), 1);
 
 	// setup the comparer.
 	queue_comparer comparer;
@@ -79,15 +79,16 @@ int main(void)
 		std::memset(lut, -1, sizeof(long long) * 2 * n);
 
 		// fill with ids
-		std::iota(queue.begin(), end_it, 1);
+		//std::iota(queue.begin(), end_it, 1);
+		std::memcpy(queue.data(), sequence.data(), sizeof(int) * n);
 
 		//std::sort(queue.begin(), queue.end(), comparer);
 		std::sort(queue.begin(), end_it, comparer);
 
 		// print out the result
 		for (auto i = queue.begin(); i != end_it; ++i)
-			std::cout << std::unitbuf << *i << ' ';
-		std::cout << std::unitbuf << std::endl;
+			std::cout << *i << ' ';
+		std::cout << std::endl;
 	}
 
 	return 0;
