@@ -6,16 +6,50 @@
 
 #define MAX_N 200000
 
-unsigned long long pow(unsigned int n, unsigned long long exponent){
-	// get the highest bit.
-	unsigned long long mult_bit = 8*sizeof(unsigned long long) - __builtin_clzll(exponent);
-	unsigned long long product = n;
+unsigned long long pow_n_mod(unsigned int base, unsigned long long exponent, unsigned long modulus)
+{
+	/*
+	   // get the highest bit.
+	   unsigned long long mult_bit;
+	   if (exponent == 0)
+	   mult_bit = 0;
+	   else
+	   mult_bit = 1 << (8*sizeof(unsigned long long) - __builtin_clzll(exponent) - 1);
+	   unsigned long long product = 1, tmp = n;
 
-	for (mult_bit >>= 1; mult_bit > 0; mult_bit >>=1)
+	   std::cerr << "exponent = " << exponent << " -> mult_bit = " << mult_bit << std::endl;
+
+	   for (mult_bit >>= 1; mult_bit > 0; mult_bit >>=1)
+	   {
+	   tmp *= tmp;
+	   if ((mult_bit & exponent) != 0)
+	   tmp *= n;
+
+	   //tmp %= modulus;
+
+	   std::cerr << "tmp = " << tmp << std::endl;
+
+	   product *= tmp % modulus;
+	   }
+	   product %= modulus;
+
+	   return product;
+	 */
+
+	unsigned long long product = 1;
+
+	while (exponent > 0)
 	{
-		product *= product;
-		if ((mult_bit & exponent) != 0)
-			product *= n;
+		if (exponent % 2 == 1)
+		{
+			product *= base;
+			product %= modulus;
+		}
+		exponent >>= 1;
+
+		// square the base
+		base *= base;
+		base %= modulus;
 	}
 
 	return product;
@@ -23,23 +57,22 @@ unsigned long long pow(unsigned int n, unsigned long long exponent){
 
 struct queue_comparer
 {
-	unsigned int n;            // number of people
-	unsigned long c, p;       // c:constant, p:modulus, p2:criterion
-	unsigned long long e;      // e:exponent
+	unsigned int n;              // number of people
+	unsigned long c, p;          // c:constant, p:modulus, p2:criterion
+	unsigned long long e;        // e:exponent
 
 	bool operator()(const unsigned long long& i, const unsigned long long& j)
 	{
-		unsigned long long var = c * (i-j) * pow(i+j, e);
-		unsigned long long mod_var = var % p;
+		// ab mod n = ((a mod n)(b mod n)) mod n;
+		unsigned long long var = ( ((c*(i-j)) % p) * (pow_n_mod(i+j, e, p)) ) % p;
 
-		std::cerr << "-> " << c << " * " << "( " << i << " - " << j <<" )"
-		          << " * ( " << i << " + " << j << " ) ^ " << e
-		          << " = " << var << std::endl;
-		std::cerr << "   " << var << " mod " << p << " = " << mod_var
-		          << " > " << ((float)p/2) << "? "
-		          << ((2 * mod_var > p) ? "TRUE" : "FALSE") << std::endl;
+		std::cerr << "i = " << i << ", j = " << j << std::endl;
+		std::cerr << c << "*(" << i << "-" << j << ")%" << p << " = " << (c*(i-j)) % p << std::endl;
+		std::cerr << "( (" << i << "+" << j << ")^" << e << " )%" << p << " = " << pow_n_mod(i+j, e, p) << std::endl;
+		std::cerr << "(a*b) % p = " << var << std::endl << std::endl;
 
-		return 2 * mod_var < p;
+		// var > 2*p -> 2*var > p
+		return 2 * var > p;
 	}
 };
 
