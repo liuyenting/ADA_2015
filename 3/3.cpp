@@ -57,8 +57,8 @@ int main(void)
 	std::cin >> cases;
 
 	// pre-allocate the maximum possible size of the queue.
-	std::vector<int> queue(MAX_N), sequence(MAX_N);
-	std::iota(sequence.begin(), sequence.end(), 1);
+	std::vector<int> queue;
+	queue.reserve(MAX_N);
 
 	while (cases-- > 0)
 	{
@@ -73,8 +73,7 @@ int main(void)
 		std::memset(lut, -1, sizeof(long long) * 2 * n);
 
 		// fill with ids
-		//std::iota(queue.begin(), end_it, 1);
-		std::memcpy(queue.data(), sequence.data(), sizeof(int) * n);
+		std::iota(queue.begin(), end_it, 1);
 
 		//std::sort(queue.begin(), queue.end(), comparer);
 		std::sort(queue.begin(), end_it, comparer);
