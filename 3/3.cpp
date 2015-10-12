@@ -73,30 +73,66 @@ bool comparer(const long long& i, const long long& j)
    }
  */
 
-void merge (int *a, int n, int m) {
-	int i, j, k;
-	for (i = 0, j = m, k = 0; k < n; k++)
-	{
-		rst[k] = (j == n) ? a[i++]
-											: (i == m) ? a[j++]
-		         //: a[j] < a[i] ? a[j++]
-											: (comparer(a[j], a[i])) ? a[j++]
-											: a[i++];
-	}
+/*
+   void merge (int *a, int n, int m) {
+   int i, j, k;
+   for (i = 0, j = m, k = 0; k < n; k++)
+   {
+   rst[k] = (j == n) ? a[i++]
+           : (i == m) ? a[j++]
+           //: a[j] < a[i] ? a[j++]
+           : (comparer(a[j], a[i])) ? a[j++]
+           : a[i++];
+   }
 
-	for (i = 0; i < n; i++)
+   for (i = 0; i < n; i++)
+   {
+   a[i] = rst[i];
+   }
+   }
+
+   void merge_sort (int *a, int n) {
+   if (n < 2)
+   return;
+   int m = n / 2;
+   merge_sort(a, m);
+   merge_sort(a + m, n - m);
+   merge(a, n, m);
+   }
+ */
+
+void merge(const int& start_id, const int& pivot, const int& length)
+{
+	int idx, a, b;
+	for (idx = start_id-1, a = start_id, b = pivot; idx < length; idx++)
 	{
-		a[i] = rst[i];
+		if (b == start_id+length)
+			rst[idx] = a++;
+		else if (a == pivot)
+			rst[idx] = b++;
+		else
+		{
+			// no one meets the end, continue the comparison
+			if (comparer(b, a))
+				rst[idx] = b++;
+			else
+				rst[idx] = a++;
+		}
 	}
 }
 
-void merge_sort (int *a, int n) {
-	if (n < 2)
+void merge_sort(const int& start_id, const int& length)
+{
+	if (length<2)
 		return;
-	int m = n / 2;
-	merge_sort(a, m);
-	merge_sort(a + m, n - m);
-	merge(a, n, m);
+
+	// divide
+	int m = length/2;
+	merge_sort(start_id, m);
+	merge_sort(start_id+m, length-m);
+
+	// merge
+	merge(start_id, start_id+m, length);
 }
 
 int main(void)
@@ -128,13 +164,13 @@ int main(void)
 
 		//std::sort(queue.begin(), end_it, comparer);
 		//std::sort(ids, ids + n, comparer);
-		merge_sort(ids, n);
+		merge_sort(1, n);
 
 		// print out the result
 		//for (auto i = queue.begin(); i != end_it; ++i)
 		//	std::cout << *i << ' ';
 		for (int i = 0; i < n; i++)
-			std::cout << ids[i] << ' ';
+			std::cout << rst[i] << ' ';
 		std::cout << std::endl;
 	}
 
