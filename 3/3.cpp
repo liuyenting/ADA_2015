@@ -53,86 +53,29 @@ bool comparer(const long long& i, const long long& j)
 	return (2 * ((wrapped_mod(c*(i-j), p) * lut[i+j-1]) % p) > p);
 }
 
-/*
-   void merge (int *a, int n, int m) {
-   int i, j, k;
-   int *x = (int*)malloc(n * sizeof (int));
-   for (i = 0, j = m, k = 0; k < n; k++)
-   {
-   x[k] = (j == n) ? a[i++]
-         : (i == m) ? a[j++]
-         //: a[j] < a[i] ? a[j++]
-         : (comparer(a[j], a[i])) ? a[j++]
-         : a[i++];
-   }
-   for (i = 0; i < n; i++)
-   {
-   a[i] = x[i];
-   }
-   free(x);
-   }
- */
-
-/*
-   void merge (int *a, int n, int m) {
-   int i, j, k;
-   for (i = 0, j = m, k = 0; k < n; k++)
-   {
-   rst[k] = (j == n) ? a[i++]
-           : (i == m) ? a[j++]
-           //: a[j] < a[i] ? a[j++]
-           : (comparer(a[j], a[i])) ? a[j++]
-           : a[i++];
-   }
-
-   for (i = 0; i < n; i++)
-   {
-   a[i] = rst[i];
-   }
-   }
-
-   void merge_sort (int *a, int n) {
-   if (n < 2)
-   return;
-   int m = n / 2;
-   merge_sort(a, m);
-   merge_sort(a + m, n - m);
-   merge(a, n, m);
-   }
- */
-
-void merge(const int& start_id, const int& pivot, const int& length)
-{
-	int idx, a, b;
-	for (idx = start_id-1, a = start_id, b = pivot; idx < length; idx++)
+void merge (int *a, int n, int m) {
+	int i, j, k;
+	for (i = 0, j = m, k = 0; k < n; k++)
 	{
-		if (b == start_id+length)
-			rst[idx] = a++;
-		else if (a == pivot)
-			rst[idx] = b++;
-		else
-		{
-			// no one meets the end, continue the comparison
-			if (comparer(b, a))
-				rst[idx] = b++;
-			else
-				rst[idx] = a++;
-		}
+		rst[k] = (j == n) ? a[i++]
+											: (i == m) ? a[j++]
+											: (comparer(a[j], a[i])) ? a[j++]
+											: a[i++];
+	}
+
+	for (i = 0; i < n; i++)
+	{
+		a[i] = rst[i];
 	}
 }
 
-void merge_sort(const int& start_id, const int& length)
-{
-	if (length<2)
+void merge_sort (int *a, int n) {
+	if (n < 2)
 		return;
-
-	// divide
-	int m = length/2;
-	merge_sort(start_id, m);
-	merge_sort(start_id+m, length-m);
-
-	// merge
-	merge(start_id, start_id+m, length);
+	int m = n / 2;
+	merge_sort(a, m);
+	merge_sort(a + m, n - m);
+	merge(a, n, m);
 }
 
 int main(void)
@@ -140,37 +83,25 @@ int main(void)
 	int cases;
 	std::cin >> cases;
 
-	// pre-allocate the maximum possible size of the queue.
-	//std::vector<int> queue;
-	//queue.reserve(MAX_N);
-
 	while (cases-- > 0)
 	{
 		// read the values and prep them.
 		std::cin >> n >> c >> e >> p;
 
-		// get the iterator
-		//auto end_it = queue.begin();
-		//std::advance(end_it, n);
-
 		// reset the lut
 		std::memset(lut, -1, sizeof(long long) * 2 * n);
 
 		// fill with ids
-		//std::iota(queue.begin(), end_it, 1);
-		//std::iota(ids, ids + n, 1);
 		for (int i = 0; i < n; i++)
 			ids[i] = i+1;
 
-		//std::sort(queue.begin(), end_it, comparer);
-		//std::sort(ids, ids + n, comparer);
-		merge_sort(1, n);
+		merge_sort(ids, n);
 
 		// print out the result
 		//for (auto i = queue.begin(); i != end_it; ++i)
 		//	std::cout << *i << ' ';
 		for (int i = 0; i < n; i++)
-			std::cout << rst[i] << ' ';
+			std::cout << ids[i] << ' ';
 		std::cout << std::endl;
 	}
 
