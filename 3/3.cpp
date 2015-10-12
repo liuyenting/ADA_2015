@@ -11,8 +11,10 @@
 static int n;                     // number of people
 static long long c, p;            // c:constant, p:modulus
 static long long e;               // e:exponent
+
 static int ids[MAX_N];            // the queue
 static long long lut[2 * MAX_N];  // lookup table for pow_n_mod
+static int rst[MAX_N];     // result
 
 long long pow_n_mod(long long base,
                     long long exponent,
@@ -51,22 +53,41 @@ bool comparer(const long long& i, const long long& j)
 	return (2 * ((wrapped_mod(c*(i-j), p) * lut[i+j-1]) % p) > p);
 }
 
+/*
+   void merge (int *a, int n, int m) {
+   int i, j, k;
+   int *x = (int*)malloc(n * sizeof (int));
+   for (i = 0, j = m, k = 0; k < n; k++)
+   {
+   x[k] = (j == n) ? a[i++]
+         : (i == m) ? a[j++]
+         //: a[j] < a[i] ? a[j++]
+         : (comparer(a[j], a[i])) ? a[j++]
+         : a[i++];
+   }
+   for (i = 0; i < n; i++)
+   {
+   a[i] = x[i];
+   }
+   free(x);
+   }
+ */
+
 void merge (int *a, int n, int m) {
 	int i, j, k;
-	int *x = (int*)malloc(n * sizeof (int));
 	for (i = 0, j = m, k = 0; k < n; k++)
 	{
-		x[k] = (j == n) ? a[i++]
-									: (i == m) ? a[j++]
-		       //: a[j] < a[i] ? a[j++]
-									: (comparer(a[j], a[i])) ? a[j++]
-									: a[i++];
+		rst[k] = (j == n) ? a[i++]
+											: (i == m) ? a[j++]
+		         //: a[j] < a[i] ? a[j++]
+											: (comparer(a[j], a[i])) ? a[j++]
+											: a[i++];
 	}
+
 	for (i = 0; i < n; i++)
 	{
-		a[i] = x[i];
+		a[i] = rst[i];
 	}
-	free(x);
 }
 
 void merge_sort (int *a, int n) {
