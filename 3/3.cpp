@@ -7,9 +7,9 @@
 
 #define MAX_N 200000
 
-static int n, n2;               // number of people
-static long long c, p;      // c:constant, p:modulus
-static long long e;         // e:exponent
+static int n, n2;                 // number of people
+static long long c, p;            // c:constant, p:modulus
+static long long e;               // e:exponent
 static long long lut[2 * MAX_N];  // lookup table for pow_n_mod
 
 long long pow_n_mod(long long base,
@@ -71,13 +71,11 @@ int main(void)
 		std::advance(end_it, n);
 
 		// reset the lut
-		//std::memset(lut, -1, sizeof(long long) * 2 * n);
-		std::fill(lut, lut + n2, -1);
+		std::memset(lut, -1, sizeof(long long) * 2 * n);
 
 		// fill with ids
 		std::iota(queue.begin(), end_it, 1);
 
-		//std::sort(queue.begin(), queue.end(), comparer);
 		std::sort(queue.begin(), end_it, comparer);
 
 		// print out the result
