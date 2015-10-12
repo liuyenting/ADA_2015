@@ -42,7 +42,7 @@ long long pow_n_mod(long long base,
    }
  */
 
-#define WRAPPED_MOD(i, i_max) (i % i_max + i_max) % i_max)
+#define WRAPPED_MOD(i, i_max) ((i % i_max + i_max) % i_max)
 bool comparer(const long long& i, const long long& j)
 {
 	if (lut[i+j-1] == -1)
