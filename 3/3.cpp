@@ -122,7 +122,9 @@ int main(void)
 
 		// fill with ids
 		//std::iota(queue.begin(), end_it, 1);
-		std::iota(ids, ids + n, 1);
+		//std::iota(ids, ids + n, 1);
+		for (int i = 0; i < n; i++)
+			ids[i] = i+1;
 
 		//std::sort(queue.begin(), end_it, comparer);
 		//std::sort(ids, ids + n, comparer);
