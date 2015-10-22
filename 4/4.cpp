@@ -31,13 +31,16 @@ static const uint64_t Q[7] = {30, 15, 9, 3, 3, 3, 3};
 static const uint64_t R[7] = {0x3fffffff, 0x00007fff, 0x000001ff, 0x00000007, 0x00000007, 0x00000007, 0x00000007};
 
 int main(void) {
+	// disable buffering
+	std::ios_base::sync_with_stdio(false);
+
 	int cases;
 	std::cin >> cases;
 
 	uint64_t l, r;
 
 	uint64_t n;        // numerator
-	uint64_t m;        // n % d goes here.
+	uint64_t m;        // n % d goes here
 
 	uint8_t seven, four, dummy;
 	uint64_t c, t;
