@@ -25,7 +25,8 @@
  *                                                               0 (3)
  *                                                               x
  */
-static const uint64_t M = 0x71c71c71c71c71c7;
+
+#define M = 0x71c71c71c71c71c7;
 static const uint64_t Q[7] = {30, 15, 9, 3, 3, 3, 3};
 static const uint64_t R[7] = {0x3fffffff, 0x00007fff, 0x000001ff, 0x00000007, 0x00000007, 0x00000007, 0x00000007};
 
@@ -38,7 +39,8 @@ int main(void) {
 	uint64_t n;        // numerator
 	uint64_t m;        // n % d goes here.
 
-	uint8_t seven, four, dummy;
+	int8_t parity;
+	uint8_t dummy;
 	uint64_t c, t;
 
 	while(cases-- > 0) {
@@ -56,14 +58,16 @@ int main(void) {
 			//m = m == 7 ? 0 : m;        // OR, less portably: m = m & -((signed)(m - d) >> s);
 
 			if(m == 7) {
-				seven = four = 0;
+				parity = -3;
 				for(t = n; t > 0; t /= 10) {
 					dummy = t % 10;
-					seven += (dummy == 7);
-					four += (dummy == 4);
+					if(dummy == 7)
+						parity++;
+					else if(dummy == 4)
+						parity--;
 				}
 
-				c += ((seven > four) && (seven > 2));
+				c += (parity > 0);
 			}
 		}
 
