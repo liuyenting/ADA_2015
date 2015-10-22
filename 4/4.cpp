@@ -26,7 +26,7 @@
  *                                                               x
  */
 
-#define M = 0x71c71c71c71c71c7
+#define M 0x71c71c71c71c71c7
 static const uint64_t Q[7] = {30, 15, 9, 3, 3, 3, 3};
 static const uint64_t R[7] = {0x3fffffff, 0x00007fff, 0x000001ff, 0x00000007, 0x00000007, 0x00000007, 0x00000007};
 
