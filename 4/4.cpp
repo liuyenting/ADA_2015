@@ -58,7 +58,7 @@ int main(void) {
 			//m = m == 7 ? 0 : m;        // OR, less portably: m = m & -((signed)(m - d) >> s);
 
 			if(m == 7) {
-				parity = -3;
+				parity = -2;
 				for(t = n; t > 0; t /= 10) {
 					dummy = t % 10;
 					if(dummy == 7)
@@ -67,7 +67,7 @@ int main(void) {
 						parity--;
 				}
 
-				c += (parity >= 0);
+				c += (parity > 0);
 			}
 		}
 
