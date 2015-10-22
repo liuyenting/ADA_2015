@@ -66,17 +66,18 @@ int main(void) {
 		/// ...bump by 7
 		for(n = l+m, c = 0; n <= r; n += 7) {
 
-			for(t = n, seven = -2, four = -2; t > 0; ) {
+			for(t = n, seven = four = 0; t > 0; t /= 10) {
 				dummy = t % 10;
-				t /= 10;
-				if(dummy == 7) seven++;
-				else if(dummy == 4) four++;
+				seven += !(dummy ^ 7);
+				four += !(dummy ^ 4);
+				//if(dummy == 7) seven++;
+				//else if(dummy == 4) four++;
 			}
 
-			//if((seven > 0) && (seven > four))
-			//	std::cerr << "7 -> " << seven << ", 4 -> " << four << " [ " << n << " ]" << std::endl;
+			//if((seven >= 3) && (seven > four))
+			//	std::cerr << n << std::endl;
 
-			c += (seven > 0) && (seven > four);
+			c += (seven >= 3) && (seven > four);
 		}
 
 		std::cout << c << std::endl;
