@@ -26,6 +26,7 @@
  *                                                               x
  */
 
+// ...for mod 7
 static const uint64_t M = 0x71c71c71c71c71c7;
 static const uint64_t Q[7] = {30, 15, 9, 3, 3, 3, 3};
 static const uint64_t R[7] = {0x3fffffff, 0x00007fff, 0x000001ff, 0x00000007, 0x00000007, 0x00000007, 0x00000007};
@@ -42,7 +43,7 @@ int main(void) {
 	uint64_t n;        // numerator
 	uint64_t m;        // n % d goes here
 
-	uint8_t seven, four, dummy;
+	int8_t seven, four, dummy;
 	uint64_t c, t;
 
 	while(cases-- > 0) {
@@ -64,13 +65,14 @@ int main(void) {
 
 		/// ...bump by 7
 		for(n = l+m, c = 0; n <= r; n += 7) {
-			for(t = n, seven = four = 0; t > 0; t /= 10) {
+			for(t = n, seven = -2, four = 0; t > 0; ) {
 				dummy = t % 10;
+				t /= 10;
 				if(dummy == 7) seven++;
 				else if(dummy == 4) four++;
 			}
 
-			c += ((seven > four) & (seven >= 3));
+			c += (seven > four);
 		}
 
 		std::cout << c << std::endl;
