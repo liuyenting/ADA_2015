@@ -72,7 +72,7 @@ int main(void) {
 				else if(dummy == 4) four++;
 			}
 
-			c += (seven > four);
+			c += (seven >= four);
 		}
 
 		std::cout << c << std::endl;
