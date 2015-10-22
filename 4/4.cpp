@@ -67,7 +67,7 @@ int main(void) {
 						parity--;
 				}
 
-				c += (parity > 0);
+				c += (parity >= 0);
 			}
 		}
 
