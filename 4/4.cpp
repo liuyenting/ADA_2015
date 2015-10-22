@@ -65,14 +65,16 @@ int main(void) {
 
 		/// ...bump by 7
 		for(n = l+m, c = 0; n <= r; n += 7) {
-			for(t = n, seven = -2, four = 0; t > 0; ) {
-				dummy = t % 10;
-				t /= 10;
-				if(dummy == 7) seven++;
-				else if(dummy == 4) four++;
-			}
-
-			c += (seven >= four);
+			/*
+			 * for(t = n, seven = -2, four = -2; t > 0; ) {
+			 * dummy = t % 10;
+			 * t /= 10;
+			 * if(dummy == 7) seven++;
+			 * else if(dummy == 4) four++;
+			 * }
+			 *
+			 * c += (seven > four);
+			 */
 		}
 
 		std::cout << c << std::endl;
