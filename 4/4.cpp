@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdint>
+#include <vector>
 
 /*
  * 0111000111000111000111000111000111000111000111000111000111000111
@@ -46,6 +47,9 @@ int main(void) {
 	int8_t seven, four, dummy;
 	uint64_t c, t;
 
+	uint8_t greater = 0;
+	std::vector<uint64_t> list;
+
 	while(cases-- > 0) {
 		std::cin >> l >> r;
 
@@ -68,19 +72,27 @@ int main(void) {
 
 			for(t = n, seven = four = 0; t > 0; t /= 10) {
 				dummy = t % 10;
-				seven += !(dummy ^ 7);
-				four += !(dummy ^ 4);
-				//if(dummy == 7) seven++;
-				//else if(dummy == 4) four++;
+				seven += (dummy == 7);
+				four += (dummy == 4);
 			}
 
-			//if((seven >= 3) && (seven > four))
-			//	std::cerr << n << std::endl;
+			if((seven >= 3) && (seven > four)) {
+				//std::cerr << n << std::endl;
+				c++;
 
-			c += (seven >= 3) && (seven > four);
+				if(seven > 4) {
+					greater++;
+					list.push_back(n);
+				}
+			}
+
+			//c += (seven >= 3) && (seven > four);
 		}
 
-		std::cout << c << std::endl;
+		std::cerr << std::endl;
+		std::cerr << "greater than 4 ? " << greater << std::endl;
+		for(auto itr = list.begin(); itr != list.end(); ++itr)
+			std::cerr << *itr << std::endl;
 	}
 
 	return 0;
