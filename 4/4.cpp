@@ -55,29 +55,67 @@ void count_lucky_numbers() {
 	counter = lower_result = upper_result = 0;
 
 	struct prefix old_prefix, new_prefix;
-	std::vector<struct prefix> number;
-	number.reserve(1024);
+
+	int index = 0, old_index;
+	struct prefix number[1024];
+	//number.reserve(1024);
 
 	// push the first element.
 	for(unsigned int i = 0; i <= 9; i++) {
-		new_prefix = {
+		/*
+		 * new_prefix = {
+		 * .level = 1,
+		 * .value = i,
+		 * .remainder = i%7,
+		 * .seven = (i==7),
+		 * .four = (i==4)
+		 * };
+		 * number.push_back(new_prefix);
+		 */
+		number[index++] = {
 			.level = 1,
 			.value = i,
 			.remainder = i%7,
 			.seven = (i==7),
 			.four = (i==4)
 		};
-		number.push_back(new_prefix);
 	}
+
+	//std::cerr << "index = " << index << std::endl;
 
 	unsigned long long depth = 0;
 
-	while(!number.empty()) {
+	while(index > 0) {
+		//std::cerr << "index = " << index << std::endl;
 		//if(number.size() > depth)
 		//	depth = number.size();
 
-		old_prefix = number.back();
-		number.pop_back();
+		//old_prefix = number.back();
+		//number.pop_back();
+		old_prefix = number[--index];
+
+		/*
+		 * if(old_prefix.level > upper_digits) {
+		 * if((old_prefix.remainder == 0) && (old_prefix.seven >= 3) && (old_prefix.seven > old_prefix.four)) {
+		 * //std::cerr << old_prefix.value << std::endl;
+		 * if(old_prefix.value < upper)
+		 * upper_result++;
+		 * if(old_prefix.value < lower)
+		 * lower_result++;
+		 * }
+		 * } else {
+		 * for(unsigned int i = 0; i <= 9; i++) {
+		 * new_prefix = {
+		 * .level = old_prefix.level + 1,
+		 * .value = old_prefix.value*10 + i,
+		 * .remainder = remainder_lookup[old_prefix.remainder][i],
+		 * .seven = old_prefix.seven + (i==7),
+		 * .four = old_prefix.four + (i==4)
+		 * };
+		 * number.push_back(new_prefix);
+		 * }
+		 * }
+		 */
 
 		if(old_prefix.level > upper_digits) {
 			if((old_prefix.remainder == 0) && (old_prefix.seven >= 3) && (old_prefix.seven > old_prefix.four)) {
@@ -89,14 +127,13 @@ void count_lucky_numbers() {
 			}
 		} else {
 			for(unsigned int i = 0; i <= 9; i++) {
-				new_prefix = {
+				number[index++] = {
 					.level = old_prefix.level + 1,
 					.value = old_prefix.value*10 + i,
 					.remainder = remainder_lookup[old_prefix.remainder][i],
 					.seven = old_prefix.seven + (i==7),
 					.four = old_prefix.four + (i==4)
 				};
-				number.push_back(new_prefix);
 			}
 		}
 	}
