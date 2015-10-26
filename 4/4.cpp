@@ -1,98 +1,101 @@
 #include <iostream>
 #include <cstdint>
+#include <x86intrin.h>
 #include <vector>
 
-/*
- * 0111000111000111000111000111000111000111000111000111000111000111
- *
- *                                   000111000111000111000111000111 (30)
- *                               0111000111000111000111000111000111
- *
- *                                                  111000111000111 (15)
- *                                              0111000111000111000
- *
- *                                                        000111000 (9)
- *                                                       0111000111
- *
- *                                                             111 (3)
- *                                                         0111000
- *
- *                                                             000 (3)
- *                                                            0111
- *
- *                                                             111 (3)
- *                                                               0
- *
- *                                                               0 (3)
- *                                                               x
- */
+struct prefix {
+	unsigned long long value;
+	unsigned int remainder;
+	unsigned int seven;
+	unsigned int four;
+};
 
-// ...for mod 7
-static const uint64_t M = 0x71c71c71c71c71c7;
-static const uint64_t Q[7] = {30, 15, 9, 3, 3, 3, 3};
-static const uint64_t R[7] = {0x3fffffff, 0x00007fff, 0x000001ff, 0x00000007, 0x00000007, 0x00000007, 0x00000007};
+static const unsigned int remainder_lookup[7][10] = {
+	{ 0, 1, 2, 3, 4, 5, 6, 0, 1, 2 },
+	{ 3, 4, 5, 6, 0, 1, 2, 3, 4, 5 },
+	{ 6, 0, 1, 2, 3, 4, 5, 6, 0, 1 },
+	{ 2, 3, 4, 5, 6, 0, 1, 2, 3, 4 },
+	{ 5, 6, 0, 1, 2, 3, 4, 5, 6, 0 },
+	{ 1, 2, 3, 4, 5, 6, 0, 1, 2, 3 },
+	{ 4, 5, 6, 0, 1, 2, 3, 4, 5, 6 }
+};
+
+static unsigned int lower_digits, upper_digits;
+static unsigned long long lower, upper;
+static unsigned int lower_result, upper_result;
+static bool toggled = false;
+
+void count_lucky_numbers(unsigned int digits, struct prefix prefix) {
+	if(digits > upper_digits) {
+		if((prefix.remainder == 0) && (prefix.seven >= 3) && (prefix.seven > prefix.four)) {
+			//std::cerr << prefix.value << std::endl;
+
+			upper_result++;
+			if(prefix.value <= lower)
+				lower_result++;
+		}
+
+		return;
+	}
+
+	for(unsigned int i = 0; i <= 9; i++) {
+		struct prefix new_prefix = {
+			.value = prefix.value*10+i,
+			.remainder = remainder_lookup[prefix.remainder][i],
+			.seven = prefix.seven+(i==7),
+			.four = prefix.four+(i==4)
+		};
+
+		count_lucky_numbers(digits+1, new_prefix);
+	}
+}
+
+void count_lucky_numbers() {
+	lower_result = upper_result = 0;
+	for(unsigned int i = 0; i <= 9; i++) {
+		struct prefix prefix = {
+			.value = i,
+			.remainder = i%7,
+			.seven = (i==7),
+			.four = (i==4)
+		};
+
+		count_lucky_numbers(1, prefix);
+	}
+}
 
 int main(void) {
 	// disable buffering
 	std::ios_base::sync_with_stdio(false);
 
-	int cases;
+	unsigned int cases;
 	std::cin >> cases;
 
-	uint64_t l, r;
-
-	uint64_t n;        // numerator
-	uint64_t m;        // n % d goes here
-
-	int8_t seven, four, dummy;
-	uint64_t c, t;
-
-	uint8_t greater = 0;
-	std::vector<uint64_t> list;
-
 	while(cases-- > 0) {
-		std::cin >> l >> r;
+		std::cin >> lower >> upper;
 
-		// check the first one...
-		// mod 7, 7 = (1 << 3) - 1
-		m = (l & M) + ((l >> 3) & M);
-
-		for(const uint64_t *q = &Q[0], *r = &R[0]; m > 7; q++, r++) {
-			m = (m >> *q) + (m & *r);
+		// test for digits.
+		unsigned long long mask = 1;
+		lower_digits = upper_digits = 0;
+		for(unsigned int i = 0; i <= 18; i++, mask *= 10) {
+			//std::cerr << "testing i = " << i << ", mask = " << mask << std::endl;
+			if(!lower_digits && mask >= lower)
+				lower_digits = i;
+			if(!upper_digits && mask >= upper)
+				upper_digits = i;
 		}
-		//m = (m == 7) ? 0 : m;
-		// less portably:
-		//m = m & -((signed)(m - d) >> s);
+		upper_digits--;
 
-		// wrap around
-		m = 7-m;
+		toggled = false;
 
-		/// ...bump by 7
-		for(n = l+m, c = 0; n <= r; n += 7) {
+		count_lucky_numbers();
 
-			for(t = n, seven = four = 0; t > 0; t /= 10) {
-				dummy = t % 10;
-				seven += (dummy == 7);
-				four += (dummy == 4);
-			}
+		std::cerr << "upper result = " << upper_result << std::endl;
+		std::cerr << "lower result = " << lower_result << std::endl;
+		std::cerr << "[" << lower << "," << upper << "] = " << (upper_result-lower_result) << std::endl;
 
-			if((seven >= 3) && (seven > four)) {
-				//std::cerr << n << std::endl;
-				c++;
-
-				if(seven > 4) {
-					greater++;
-					list.push_back(n);
-				}
-			}
-
-			//c += (seven >= 3) && (seven > four);
-		}
-
-		std::cerr << std::endl;
-		std::cerr << "greater than 4 ? " << greater << std::endl;
-		for(auto itr = list.begin(); itr != list.end(); ++itr)
-			std::cerr << *itr << std::endl;
+		//std::cerr << "l digits = " << min_digits << std::endl;
+		//std::cerr << "r digits = " << lower_digits << std::endl;
 	}
 
 	return 0;
