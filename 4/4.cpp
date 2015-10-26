@@ -31,7 +31,7 @@ void count_lucky_numbers(unsigned int digits, struct prefix prefix) {
 			//std::cerr << prefix.value << std::endl;
 
 			upper_result++;
-			if(prefix.value <= lower)
+			if(prefix.value < lower)
 				lower_result++;
 		}
 
