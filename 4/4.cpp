@@ -92,7 +92,8 @@ int main(void) {
 
 		std::cerr << "upper result = " << upper_result << std::endl;
 		std::cerr << "lower result = " << lower_result << std::endl;
-		std::cerr << "[" << lower << "," << upper << "] = " << (upper_result-lower_result) << std::endl;
+		std::cerr << "[" << lower << "," << upper << "] = ";
+		std::cout << (upper_result-lower_result) << std::endl;
 
 		//std::cerr << "l digits = " << min_digits << std::endl;
 		//std::cerr << "r digits = " << lower_digits << std::endl;
