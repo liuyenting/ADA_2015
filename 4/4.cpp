@@ -2,11 +2,6 @@
 
 #define MAX_DIGITS 18
 
-/* 10^n % 7 */
-static const unsigned int exponent_ratio_lookup[19] = {
-	1, 3, 2, 6, 4, 5, 1, 3, 2, 6, 4, 5, 1, 3, 2, 6, 4, 5, 1
-};
-
 static const unsigned long long ratio[20] = {
 	0,
 	1,
@@ -30,26 +25,31 @@ static const unsigned long long ratio[20] = {
 	1000000000000000000
 };
 
+/* 10^n % 7 */
+static const int exp10_mod7_lookup[19] = {
+	1, 3, 2, 6, 4, 5, 1, 3, 2, 6, 4, 5, 1, 3, 2, 6, 4, 5, 1
+};
+
 /*
  * 1) current digits (starts from 1)
  * 2) mod 7
  * 3) amount of digit 7
  * 4) amount of digit 4
  */
-static unsigned int table[MAX_DIGITS+1][7][MAX_DIGITS+1][MAX_DIGITS+1];
+static int table[MAX_DIGITS+1][7][MAX_DIGITS+1][MAX_DIGITS+1];
 
-int main(void) {
-	// write the default conditions.
+void generate_table(void) {
+	// write the default condition.
 	table[0][0][0][0] = 1;
 
 	// filling rest of the digits.
-	unsigned int digit_pos, mod, seven_cnt, four_cnt, digit;
+	int digit_pos, mod, seven_cnt, four_cnt, digit;
 	for(digit_pos = 1; digit_pos <= MAX_DIGITS; digit_pos++) {
 		for(mod = 0; mod < 7; mod++) {
 			for(seven_cnt = 0; seven_cnt <= digit_pos; seven_cnt++) {
 				for(four_cnt = 0; four_cnt <= digit_pos; four_cnt++) {
 					for(digit = 0; digit <= 9; digit++) {
-						unsigned int new_mod = ((digit % 7) * exponent_ratio_lookup[digit_pos]) % 7;
+						int new_mod = ((digit % 7) * exp10_mod7_lookup[digit_pos - 1]) % 7;
 						//unsigned long long new_mod = (digit * ratio[digit_pos]) % 7;
 
 						if(mod < new_mod)
@@ -57,7 +57,7 @@ int main(void) {
 						else
 							new_mod = mod - new_mod;
 
-						unsigned int pulled_value = 0;
+						int pulled_value = 0;
 						switch(digit) {
 						case 4:
 							pulled_value = (four_cnt) ? (table[digit_pos - 1][new_mod][seven_cnt][four_cnt - 1]) : 0;
@@ -68,32 +68,172 @@ int main(void) {
 						default:
 							pulled_value = table[digit_pos - 1][new_mod][seven_cnt][four_cnt];
 						}
-
 						table[digit_pos][mod][seven_cnt][four_cnt] += pulled_value;
 					}
 				}
 			}
 		}
 	}
+}
+
+static const int mult10_mod7_lookup[7][10] = {
+	{ 0, 1, 2, 3, 4, 5, 6, 0, 1, 2 },
+	{ 3, 4, 5, 6, 0, 1, 2, 3, 4, 5 },
+	{ 6, 0, 1, 2, 3, 4, 5, 6, 0, 1 },
+	{ 2, 3, 4, 5, 6, 0, 1, 2, 3, 4 },
+	{ 5, 6, 0, 1, 2, 3, 4, 5, 6, 0 },
+	{ 1, 2, 3, 4, 5, 6, 0, 1, 2, 3 },
+	{ 4, 5, 6, 0, 1, 2, 3, 4, 5, 6 }
+};
+
+unsigned long long int n_lucky_tens( int first_number, int exp, int plus_mod_7, int plus_n_7, int plus_n_4 ) {
+	unsigned long long int result = 0;
+	for(int last_number = 0; last_number < first_number; ++last_number) {
+		int last_mod_7 = (last_number * exp10_mod7_lookup[exp]) % 7;
+		int previous_mod_7 = (7 - ((last_mod_7 + plus_mod_7)%7) ) % 7;
+
+		if(last_number == 4) {
+			for(int n_7 = plus_n_7 >= 3 ? 0 : 3 - plus_n_7;
+			    n_7 <= 18 - plus_n_7; ++n_7)
+			{
+				for(int n_4 = 0; n_4 + plus_n_4 + 1 < n_7 + plus_n_7; ++n_4) {
+					result += table[exp][previous_mod_7][n_7][n_4];
+				}
+			}
+		} else if(last_number == 7) {
+			for(int n_7 = plus_n_7 >= 2 ? 0 : 2 - plus_n_7;
+			    n_7 <= 18 - plus_n_7 - 1; ++n_7)
+			{
+				for(int n_4 = 0; n_4 + plus_n_4 < n_7 + plus_n_7 + 1; ++n_4) {
+					result += table[exp][previous_mod_7][n_7][n_4];
+				}
+			}
+		} else {
+			for(int n_7 = plus_n_7 >= 3 ? 0 : 3 - plus_n_7;
+			    n_7 <= 18 - plus_n_7; ++n_7)
+			{
+				for(int n_4 = 0; n_4 + plus_n_4< n_7 + plus_n_7; ++n_4) {
+					result += table[exp][previous_mod_7][n_7][n_4];
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+unsigned long long int n_lucky( unsigned long long int upper_bound ) {
+	int digits[19];
+	int n_digit = 0;
+	while(upper_bound > 0) {
+		digits[n_digit] = upper_bound % 10;
+		upper_bound /= 10;
+		n_digit += 1;
+	}
+
+	int n_4 = 0, n_7 = 0, mod_7 = 0;
+	unsigned long long int result = 0;
+	for(int i = n_digit - 1; i >= 0; --i) {
+		result += n_lucky_tens( digits[i], i, mod_7, n_7, n_4 );
+		if(digits[i] == 4) {
+			n_4 += 1;
+		}
+		if(digits[i] == 7) {
+			n_7 += 1;
+		}
+		mod_7 += digits[i] * exp10_mod7_lookup[i];
+		mod_7 %= 7;
+	}
+	if(mod_7 == 0 && n_7 > n_4 && n_7 >= 3) {
+		result += 1;
+	}
+	return result;
+}
+
+int count_lucky_numbers(int digit, int digit_pos, int mod, int seven_cnt, int four_cnt) {
+	int result = 0;
+
+	int curr_digit, curr_mod, prev_mod;
+	for(curr_digit = 0; curr_digit < digit; curr_digit++) {
+		curr_mod = ((curr_digit % 7) * exp10_mod7_lookup[digit_pos]) % 7;
+
+		if(mod < curr_mod)
+			prev_mod = 7 + mod - curr_mod;
+		else
+			prev_mod = mod - curr_mod;
+
+		//std::cout << "trial number = " << curr_digit << ", previous mod = " << prev_mod << std::endl;
+	}
+
+	return result;
+}
+
+int count_lucky_numbers(unsigned long long boundary) {
+	int result = 0;
+	int digit_pos, digit, mod = 0, seven_cnt = 0, four_cnt = 0;
+
+	// parse the boundary into digits set, big-endian.
+	int buffer[MAX_DIGITS+1] = {0};
+	for(digit_pos = 1; boundary > 0; boundary /= 10, digit_pos++)
+		buffer[digit_pos] = boundary % 10; // asm will use the quotient/remainder from the same instr.
+	digit_pos--; // remove the additional 1, added on the last cycle.
+
+	std::cout << "digits = " << digit_pos << std::endl;
+
+	// start from 1 order less.
+	for(; digit_pos > 0; digit_pos--) {
+		digit = buffer[digit_pos];
+		std::cout << " > digit = " << digit << std::endl;
+
+		// get the result of previous stage.
+		result += count_lucky_numbers(digit, digit_pos-1, mod, seven_cnt, four_cnt);
+
+		// increment the counters.
+		four_cnt += (digit == 4);
+		seven_cnt += (digit == 7);
+		mod += ((digit % 7) * exp10_mod7_lookup[digit_pos]) % 7;
+		std::cout << "...appended mod = " << (((digit % 7) * exp10_mod7_lookup[digit_pos]) % 7) << std::endl;
+		mod %= 7;
+
+		// verify whether current number is a lucky number as well?
+		if((seven_cnt >= 3) && (seven_cnt > four_cnt) && (mod == 0))
+			result++;
+
+		//std::cout << "digit_pos = " << digit_pos << ", result = " << result << std::endl;
+	}
+
+	return result;
+}
+
+int main(void) {
+	generate_table();
+
+	int cases;
+	std::cin >> cases;
 
 	// start the lookup.
 	unsigned long long lower_bound, upper_bound;
-
-	lower_bound = 800, upper_bound = 10000;
+	while(cases-- > 0) {
+		std::cin >> lower_bound >> upper_bound;
+		std::cout << (n_lucky(upper_bound) - n_lucky(lower_bound-1)) << std::endl;
+	}
+	//std::cout << count_lucky_numbers(lower_bound) << std::endl;
+	return 0;
 
 	// DEBUG test
-	unsigned int result = 0;
-	digit_pos = 18;
-	for(seven_cnt = 3; seven_cnt <= digit_pos; seven_cnt++) {
-		for(four_cnt = 0; four_cnt < seven_cnt; four_cnt++) {
-			unsigned int pulled = table[digit_pos][0][seven_cnt][four_cnt];
-			//if(pulled > 0)
-			//	std::cerr << "digit_pos = " << digit_pos << ", seven_cnt = " << seven_cnt << ", four_cnt = " << four_cnt << ", pulled = " << pulled << std::endl;
-
-			result += pulled;
-		}
-	}
-	std::cout << "result = " << result << std::endl;
-
+	/*
+	 * int result = 0;
+	 * digit_pos = 18;
+	 * for(seven_cnt = 3; seven_cnt <= digit_pos; seven_cnt++) {
+	 * for(four_cnt = 0; four_cnt < seven_cnt; four_cnt++) {
+	 * int pulled = table[digit_pos][0][seven_cnt][four_cnt];
+	 * //if(pulled > 0)
+	 * //	std::cout << "digit_pos = " << digit_pos << ", seven_cnt = " << seven_cnt << ", four_cnt = " << four_cnt << ", pulled = " << pulled << std::endl;
+	 *
+	 * result += pulled;
+	 * }
+	 * }
+	 * std::cout << "result = " << result << std::endl;
+	 */
 	return 0;
 }
