@@ -25,6 +25,16 @@ static const unsigned long long ratio[20] = {
 	1000000000000000000
 };
 
+//%
+int tens_mod_7[19];
+void make_tens_mod_7() {
+	tens_mod_7[0] = 1;
+	for(int i = 1; i < 19; ++i) {
+		tens_mod_7[i] = (tens_mod_7[i-1] * 10) % 7;
+	}
+}
+//%
+
 /* 10^n % 7 */
 static const int exp10_mod7_lookup[19] = {
 	1, 3, 2, 6, 4, 5, 1, 3, 2, 6, 4, 5, 1, 3, 2, 6, 4, 5, 1
@@ -89,7 +99,7 @@ static const int mult10_mod7_lookup[7][10] = {
 unsigned long long int n_lucky_tens( int first_number, int exp, int plus_mod_7, int plus_n_7, int plus_n_4 ) {
 	unsigned long long int result = 0;
 	for(int last_number = 0; last_number < first_number; ++last_number) {
-		int last_mod_7 = (last_number * exp10_mod7_lookup[exp]) % 7;
+		int last_mod_7 = (last_number * tens_mod_7[i]) % 7;
 		int previous_mod_7 = (7 - ((last_mod_7 + plus_mod_7)%7) ) % 7;
 
 		if(last_number == 4) {
@@ -141,7 +151,7 @@ unsigned long long int n_lucky( unsigned long long int upper_bound ) {
 		if(digits[i] == 7) {
 			n_7 += 1;
 		}
-		mod_7 += digits[i] * exp10_mod7_lookup[i];
+		mod_7 += digits[i] * tens_mod_7[i];
 		mod_7 %= 7;
 	}
 	if(mod_7 == 0 && n_7 > n_4 && n_7 >= 3) {
@@ -206,6 +216,7 @@ int count_lucky_numbers(unsigned long long boundary) {
 }
 
 int main(void) {
+	make_tens_mod_7();
 	generate_table();
 
 	int cases;
