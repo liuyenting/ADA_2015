@@ -99,7 +99,7 @@ static const int mult10_mod7_lookup[7][10] = {
 unsigned long long int n_lucky_tens( int first_number, int exp, int plus_mod_7, int plus_n_7, int plus_n_4 ) {
 	unsigned long long int result = 0;
 	for(int last_number = 0; last_number < first_number; ++last_number) {
-		int last_mod_7 = (last_number * tens_mod_7[i]) % 7;
+		int last_mod_7 = (last_number * tens_mod_7[exp]) % 7;
 		int previous_mod_7 = (7 - ((last_mod_7 + plus_mod_7)%7) ) % 7;
 
 		if(last_number == 4) {
