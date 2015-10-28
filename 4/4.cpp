@@ -59,8 +59,8 @@ void generate_table(void) {
 			for(seven_cnt = 0; seven_cnt <= digit_pos; seven_cnt++) {
 				for(four_cnt = 0; four_cnt <= digit_pos; four_cnt++) {
 					for(digit = 0; digit <= 9; digit++) {
-						int new_mod = ((digit % 7) * exp10_mod7_lookup[digit_pos - 1]) % 7;
-						//unsigned long long new_mod = (digit * ratio[digit_pos]) % 7;
+						//int new_mod = ((digit % 7) * exp10_mod7_lookup[digit_pos - 1]) % 7;
+						unsigned long long new_mod = (digit * ratio[digit_pos]) % 7;
 
 						if(mod < new_mod)
 							new_mod = 7 + mod - new_mod;
@@ -85,16 +85,6 @@ void generate_table(void) {
 		}
 	}
 }
-
-static const int mult10_mod7_lookup[7][10] = {
-	{ 0, 1, 2, 3, 4, 5, 6, 0, 1, 2 },
-	{ 3, 4, 5, 6, 0, 1, 2, 3, 4, 5 },
-	{ 6, 0, 1, 2, 3, 4, 5, 6, 0, 1 },
-	{ 2, 3, 4, 5, 6, 0, 1, 2, 3, 4 },
-	{ 5, 6, 0, 1, 2, 3, 4, 5, 6, 0 },
-	{ 1, 2, 3, 4, 5, 6, 0, 1, 2, 3 },
-	{ 4, 5, 6, 0, 1, 2, 3, 4, 5, 6 }
-};
 
 unsigned long long int n_lucky_tens( int first_number, int exp, int plus_mod_7, int plus_n_7, int plus_n_4 ) {
 	unsigned long long int result = 0;
