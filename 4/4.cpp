@@ -20,11 +20,14 @@ unsigned long long pow(int base, int exponent) {
 }
 
 void fill_table(void) {
-	// the initial condition.
-	//table[0][0][0][0][0] = 1;
+	// the initial conditions.
 	for(auto digit = 0; digit <= 9; digit++) {
 		table[1][digit][digit%7][(digit == 7) ? 1 : 0][(digit == 4) ? 1 : 0] = 1;
 	}
+
+	#ifdef TABLE
+	std::cout << "=== START TABLE GENERATION ===" << std::endl;
+	#endif
 
 	// fill from the lowest digit.
 	for(auto digit_pos = 2; digit_pos <= MAX_DIGITS; digit_pos++) {
@@ -37,30 +40,39 @@ void fill_table(void) {
 						int prev_mod = mod - curr_mod; prev_mod += (prev_mod < 0) ? 7 : 0;
 
 						// lookup the table and write into the new cell.
-						int prev_val;
+						int prev_val = 0;
 						for(auto prev_digit = 0; prev_digit <= 9; prev_digit++) {
 							switch(curr_digit) {
 							case 4:
-								prev_val = (four_cnt) ? table[digit_pos-1][prev_digit][prev_mod][seven_cnt][four_cnt-1] : 0;
+								prev_val += (four_cnt) ? table[digit_pos-1][prev_digit][prev_mod][seven_cnt][four_cnt-1] : 0;
 								break;
 							case 7:
-								prev_val = (seven_cnt) ? table[digit_pos-1][prev_digit][prev_mod][seven_cnt-1][four_cnt] : 0;
+								prev_val += (seven_cnt) ? table[digit_pos-1][prev_digit][prev_mod][seven_cnt-1][four_cnt] : 0;
 								break;
 							default:
-								prev_val = table[digit_pos-1][prev_digit][prev_mod][seven_cnt][four_cnt];
+								prev_val += table[digit_pos-1][prev_digit][prev_mod][seven_cnt][four_cnt];
 							}
-							table[digit_pos][curr_digit][mod][seven_cnt][four_cnt] += prev_val;
 						}
+						table[digit_pos][curr_digit][mod][seven_cnt][four_cnt] = prev_val;
+
+						#ifdef TABLE
+						if((digit_pos <= 3) && (curr_digit == 7))
+							std::cout << "table[" << digit_pos << "][" << curr_digit << "][" << mod << "][" << seven_cnt << "][" << four_cnt << "] = " << table[digit_pos][curr_digit][mod][seven_cnt][four_cnt] << std::endl;
+						#endif
 					}
 				}
 			}
 		}
 	}
+
+	#ifdef TABLE
+	std::cout << "=== END TABLE GENERATION ===" << std::endl;
+	#endif
 }
 
 int count_lucky_numbers(int digit_pos, int curr_digit, int acc_mod, int curr_seven_cnt, int curr_four_cnt) {
 
-	//std::cout << curr_digit << " @ pos " << digit_pos << ", acc_mod = " << acc_mod << ", n7 = " << curr_seven_cnt << ", n4 = " << curr_four_cnt << std::endl;
+	// std::cout << curr_digit << " @ pos " << digit_pos << ", acc_mod = " << acc_mod << ", n7 = " << curr_seven_cnt << ", n4 = " << curr_four_cnt << std::endl;
 
 	int result = 0;
 
@@ -69,62 +81,57 @@ int count_lucky_numbers(int digit_pos, int curr_digit, int acc_mod, int curr_sev
 		int curr_mod = (trial_digit * pow(10, digit_pos-1)) % 7;
 		int prev_mod = acc_mod - curr_mod; prev_mod += (prev_mod < 0) ? 7 : 0;
 
-		//std::cout << " > searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << std::endl;
+		// std::cout << " > searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << std::endl;
 
 		// calculate the number limitation of digits.
-		int seven_cnt_lb = 3, seven_cnt_ub = MAX_DIGITS - curr_seven_cnt;
-		int four_cnt_lb = 0, four_cnt_ub = 0;
 		switch(trial_digit) {
 		case 4:
-			if(curr_seven_cnt >= 3)
-				seven_cnt_lb = 0;
-			else
-				seven_cnt_lb = 3 - curr_seven_cnt;
-
-			for(auto seven_cnt = seven_cnt_lb; seven_cnt <= seven_cnt_ub; seven_cnt++) {
+			for(auto seven_cnt = (curr_seven_cnt >= 3) ? 0 : (3 - curr_seven_cnt);
+			    seven_cnt <= (MAX_DIGITS - curr_seven_cnt);
+			    seven_cnt++)
+			{
 				for(auto four_cnt = 0; four_cnt + curr_four_cnt + 1 < seven_cnt + curr_seven_cnt; four_cnt++) {
 					result += table[digit_pos][trial_digit][prev_mod][seven_cnt][four_cnt];
-					//std::cout << " > searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt << std::endl;
+					// std::cout << " > searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt << std::endl;
 				}
 			}
 			break;
 		case 7:
-			if(curr_seven_cnt >= 2)
-				seven_cnt_lb = 0;
-			else
-				seven_cnt_lb = 2 - curr_seven_cnt;
-			seven_cnt_ub--;
-
-			for(auto seven_cnt = seven_cnt_lb; seven_cnt <= seven_cnt_ub; seven_cnt++) {
+			for(auto seven_cnt = (curr_seven_cnt >= 2) ? 0 : (2 - curr_seven_cnt);
+			    seven_cnt <= (MAX_DIGITS - curr_seven_cnt - 1);
+			    seven_cnt++)
+			{
 				for(auto four_cnt = 0; four_cnt + curr_four_cnt < seven_cnt + curr_seven_cnt + 1; four_cnt++) {
 					result += table[digit_pos][trial_digit][prev_mod][seven_cnt][four_cnt];
-					//std::cout << " > searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt << std::endl;
+					// std::cout << " >> searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt; // << std::endl;
+					// std::cout << "... " << result << std::endl;
 				}
 			}
 			break;
-		default:
-			if(curr_seven_cnt >= 3)
-				seven_cnt_lb = 0;
-			else
-				seven_cnt_lb = 3 - curr_seven_cnt;
-
-			for(auto seven_cnt = seven_cnt_lb; seven_cnt <= seven_cnt_ub; seven_cnt++) {
+		default: for(auto seven_cnt = (curr_seven_cnt >= 3) ? 0 : (3 - curr_seven_cnt);
+			            seven_cnt <= (MAX_DIGITS - curr_seven_cnt);
+			            seven_cnt++)
+			{
 				for(auto four_cnt = 0; four_cnt + curr_four_cnt < seven_cnt + curr_seven_cnt; four_cnt++) {
 					result += table[digit_pos][trial_digit][prev_mod][seven_cnt][four_cnt];
-					//std::cout << " > searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt << std::endl;
+					// std::cout << " > searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt << std::endl;
 				}
 			}
 		}
 
-		//std::cout << "... " << result << std::endl;
+		// std::cout << "... " << result << std::endl;
 	}
 
-	//std::cout << "... " << result << " found" << std::endl;
+	// std::cout << "... " << result << " found" << std::endl;
 
 	return result;
 }
 
 int count_lucky_numbers(unsigned long long boundary) {
+	if(boundary <= 1000) {
+		return 1;
+	}
+
 	int result = 0;
 	int digits[MAX_DIGITS+1] = {0};
 
@@ -136,15 +143,12 @@ int count_lucky_numbers(unsigned long long boundary) {
 	// remove the exceeded position after the increment(++).
 	--digit_pos;
 
-	//std::cout << digit_pos << " digits" << std::endl;
+	// std::cout << digit_pos << " digits" << std::endl;
 
 	// collect the result from the highest digit.
 	int acc_mod = 0, seven_cnt = 0, four_cnt = 0;
 	for(; digit_pos > 0; digit_pos--) {
-		//std::cout << digits[digit_pos] << " @ pos " << digit_pos << ", acc_mod = " << acc_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt << std::endl;
-
-		// lookup the table for current result.
-		result += count_lucky_numbers(digit_pos, digits[digit_pos], acc_mod, seven_cnt, four_cnt);
+		// std::cout << digits[digit_pos] << " @ pos " << digit_pos << ", acc_mod = " << acc_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt << std::endl;
 
 		// increment the seven/four counter if needed.
 		switch(digits[digit_pos]) {
@@ -156,9 +160,12 @@ int count_lucky_numbers(unsigned long long boundary) {
 			break;
 		}
 
+		// lookup the table for current result.
+		result += count_lucky_numbers(digit_pos, digits[digit_pos], acc_mod, seven_cnt, four_cnt);
+
 		// calculate the previous remainder.
-		//int curr_mod = (digits * pow(10, digit_pos-1)) % 7;
-		//int prev_mod = mod - curr_mod; prev_mod += (prev_mod < 0) ? 7 : 0;
+		// int curr_mod = (digits * pow(10, digit_pos-1)) % 7;
+		// int prev_mod = mod - curr_mod; prev_mod += (prev_mod < 0) ? 7 : 0;
 
 		// calculate the accumulated mod result.
 		acc_mod += digits[digit_pos] * pow(10, digit_pos-1); acc_mod %= 7;
@@ -174,18 +181,32 @@ int count_lucky_numbers(unsigned long long boundary) {
 int main(void) {
 	fill_table();
 
+	#ifndef TEST
+
 	int cases;
 	std::cin >> cases;
 
-	unsigned long long lb = 999, ub = 10000;
+	unsigned long long lb, ub;
 	while(cases-- > 0) {
 		std::cin >> lb >> ub;
-		std::cout << (count_lucky_numbers(ub) - count_lucky_numbers(lb-1)) << std::endl;
+
+		// std::cout << "=====" << std::endl;
+		auto u_result = count_lucky_numbers(ub);
+		// std::cout << "=====" << std::endl;
+		auto l_result = count_lucky_numbers(lb-1);
+		// std::cout << "=====" << std::endl;
+		// std::cout << u_result << " - " << l_result << " = ";
+		std::cout << (u_result - l_result) << std::endl;
+		// std::cout << "=====" << std::endl;
 	}
 
+	#else
+
 	// 777, 7077, 7707, 7770, 7777
-	//unsigned long long test = 10000;
-	//std::cout << test << " has " << count_lucky_numbers(test) << " lucky numbers" << std::endl;
+	unsigned long long test = 999;
+	std::cout << test << " has " << count_lucky_numbers(test) << " lucky numbers" << std::endl;
+
+	#endif
 
 	return 0;
 }
