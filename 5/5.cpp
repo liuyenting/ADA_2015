@@ -25,6 +25,11 @@ int main(void) {
 
 		int incomings = 0;
 		for(int i = 0; i < days; i++) {
+			// force the increment, since s is strictly increasing.
+			if(checksum(incomings) == checksums[i])
+				incomings++;
+
+			// search for next valid value.
 			while(checksum(incomings) != checksums[i])
 				incomings++;
 			std::cout << incomings;
