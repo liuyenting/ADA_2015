@@ -82,14 +82,8 @@ int main(void) {
 
 		// int incomings = 0;
 		for(int i = 0; i < days; i++) {
-			// calculate current checksum.
-			checksum = 0;
-			for(int j = 0; j < MAX_DIGIT; j++)
-				checksum += digits[j];
-
 			// force the increment, since s is strictly increasing.
-			if(checksum == checksums[i])
-				checksum = increase_by_one(digits);
+			checksum = increase_by_one(digits);
 
 			// search for next valid value.
 			while(checksum != checksums[i])
