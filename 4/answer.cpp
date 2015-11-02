@@ -139,16 +139,16 @@ unsigned long long int n_lucky( unsigned long long int upper_bound ) {
 }
 
 int main() {
-	//int n_test_cases;
-	//scanf("%d", &n_test_cases );
+	int n_test_cases;
+	scanf("%d", &n_test_cases );
 	init();
-	std::cout << n_lucky(7710) << std::endl;
-	return 0;
-	/*
-	 * for(int nth_test = 0; nth_test < n_test_cases; ++nth_test) {
-	 * unsigned long long int lower_bound, upper_bound;
-	 * scanf("%llu %llu", &lower_bound, &upper_bound );
-	 * printf( "%llu\n", n_lucky( upper_bound ) - n_lucky( lower_bound -1 ) );
-	 * }
-	 */
+	// std::cout << n_lucky(7710) << std::endl;
+	// return 0;
+
+	for(int nth_test = 0; nth_test < n_test_cases; ++nth_test) {
+		unsigned long long int lower_bound, upper_bound;
+		scanf("%llu %llu", &lower_bound, &upper_bound );
+		printf( "%llu\n", n_lucky( upper_bound ) - n_lucky( lower_bound -1 ) );
+	}
+
 }

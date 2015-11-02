@@ -10,7 +10,7 @@
  *
  * Position of the digit shall starts from 1.
  */
-int table[MAX_DIGITS+1][10][7][MAX_DIGITS+1][MAX_DIGITS+1];
+unsigned long long table[MAX_DIGITS+1][10][7][MAX_DIGITS+1][MAX_DIGITS+1];
 
 unsigned long long pow(int base, int exponent) {
 	unsigned long long result = 1;
@@ -40,7 +40,7 @@ void fill_table(void) {
 						int prev_mod = mod - curr_mod; prev_mod += (prev_mod < 0) ? 7 : 0;
 
 						// lookup the table and write into the new cell.
-						int prev_val = 0;
+						unsigned long long prev_val = 0;
 						for(auto prev_digit = 0; prev_digit <= 9; prev_digit++) {
 							switch(curr_digit) {
 							case 4:
@@ -70,18 +70,18 @@ void fill_table(void) {
 	#endif
 }
 
-int count_lucky_numbers(int digit_pos, int curr_digit, int acc_mod, int curr_seven_cnt, int curr_four_cnt) {
+unsigned long long count_lucky_numbers(int digit_pos, int curr_digit, int acc_mod, int curr_seven_cnt, int curr_four_cnt) {
 
-	// std::cout << curr_digit << " @ pos " << digit_pos << ", acc_mod = " << acc_mod << ", n7 = " << curr_seven_cnt << ", n4 = " << curr_four_cnt << std::endl;
+	std::cout << curr_digit << " @ pos " << digit_pos << ", acc_mod = " << acc_mod << ", n7 = " << curr_seven_cnt << ", n4 = " << curr_four_cnt << std::endl;
 
-	int result = 0;
+	unsigned long long result = 0;
 
 	for(auto trial_digit = 0; trial_digit < curr_digit; trial_digit++) {
 		// calculate what the previous remainder should be to fulfill the accumulated mod result.
 		int curr_mod = (trial_digit * pow(10, digit_pos-1)) % 7;
 		int prev_mod = acc_mod - curr_mod; prev_mod += (prev_mod < 0) ? 7 : 0;
 
-		// std::cout << " > searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << std::endl;
+		std::cout << " > searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << std::endl;
 
 		// calculate the number limitation of digits.
 		switch(trial_digit) {
@@ -92,7 +92,8 @@ int count_lucky_numbers(int digit_pos, int curr_digit, int acc_mod, int curr_sev
 			{
 				for(auto four_cnt = 0; four_cnt + curr_four_cnt + 1 < seven_cnt + curr_seven_cnt; four_cnt++) {
 					result += table[digit_pos][trial_digit][prev_mod][seven_cnt][four_cnt];
-					// std::cout << " > searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt << std::endl;
+					std::cout << " >> searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt; // << std::endl;
+					std::cout << "... " << result << std::endl;
 				}
 			}
 			break;
@@ -103,8 +104,8 @@ int count_lucky_numbers(int digit_pos, int curr_digit, int acc_mod, int curr_sev
 			{
 				for(auto four_cnt = 0; four_cnt + curr_four_cnt < seven_cnt + curr_seven_cnt + 1; four_cnt++) {
 					result += table[digit_pos][trial_digit][prev_mod][seven_cnt][four_cnt];
-					// std::cout << " >> searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt; // << std::endl;
-					// std::cout << "... " << result << std::endl;
+					std::cout << " >> searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt; // << std::endl;
+					std::cout << "... " << result << std::endl;
 				}
 			}
 			break;
@@ -114,25 +115,28 @@ int count_lucky_numbers(int digit_pos, int curr_digit, int acc_mod, int curr_sev
 			{
 				for(auto four_cnt = 0; four_cnt + curr_four_cnt < seven_cnt + curr_seven_cnt; four_cnt++) {
 					result += table[digit_pos][trial_digit][prev_mod][seven_cnt][four_cnt];
-					// std::cout << " > searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt << std::endl;
+					std::cout << " >> searching " << trial_digit << " @ pos " << digit_pos << ", mod = " << prev_mod << ", n7 = " << seven_cnt << ", n4 = " << four_cnt; // << std::endl;
+					std::cout << "... " << result << std::endl;
 				}
 			}
 		}
 
-		// std::cout << "... " << result << std::endl;
+		std::cout << "... " << result << std::endl;
 	}
 
-	// std::cout << "... " << result << " found" << std::endl;
+	std::cout << "... " << result << " found" << std::endl;
 
 	return result;
 }
 
-int count_lucky_numbers(unsigned long long boundary) {
-	if(boundary <= 1000) {
+unsigned long long count_lucky_numbers(unsigned long long boundary) {
+	if(boundary < 777) {
+		return 0;
+	} else if(boundary <= 1000) {
 		return 1;
 	}
 
-	int result = 0;
+	unsigned long long result = 0;
 	int digits[MAX_DIGITS+1] = {0};
 
 	// parse the integer to digits.
@@ -190,20 +194,13 @@ int main(void) {
 	while(cases-- > 0) {
 		std::cin >> lb >> ub;
 
-		// std::cout << "=====" << std::endl;
-		auto u_result = count_lucky_numbers(ub);
-		// std::cout << "=====" << std::endl;
-		auto l_result = count_lucky_numbers(lb-1);
-		// std::cout << "=====" << std::endl;
-		// std::cout << u_result << " - " << l_result << " = ";
-		std::cout << (u_result - l_result) << std::endl;
-		// std::cout << "=====" << std::endl;
+		std::cout << (count_lucky_numbers(ub) - count_lucky_numbers(lb-1)) << std::endl;
 	}
 
 	#else
 
 	// 777, 7077, 7707, 7770, 7777
-	unsigned long long test = 999;
+	unsigned long long test = 10700;
 	std::cout << test << " has " << count_lucky_numbers(test) << " lucky numbers" << std::endl;
 
 	#endif
