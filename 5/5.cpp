@@ -78,11 +78,6 @@ int main(void) {
 						digits[digit_pos++] += carry;
 					}
 
-					std::cerr << "[ ";
-					for(int i = digit_pos - 1; i >= 0; i--)
-						std::cout << digits[i];
-					std::cerr << " CS:" << prev_chksum << " ] ";
-
 					if(prev_chksum <= curr_chksum)
 						break;
 				}
@@ -93,7 +88,6 @@ int main(void) {
 					digits[i] = 9;
 					delta_chksum -= 9;
 					if(delta_chksum < 0) {
-						std::cerr << "DC ";
 						digits[i] += delta_chksum;
 						delta_chksum = 0;
 					}
