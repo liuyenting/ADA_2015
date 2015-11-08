@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-#define MAX_DIGITS 1000
+#define MAX_DIGITS 1000000
 
 int main(void) {
 	int cases;
@@ -23,8 +23,6 @@ int main(void) {
 		for(int day = 0; day < days; day++) {
 			curr_chksum = chksum[day];
 			if(curr_chksum > prev_chksum) {
-				// std::cerr << '>' << std::endl;
-
 				// Calculate how many checksum are required.
 				delta_chksum = curr_chksum - prev_chksum;
 
@@ -54,8 +52,6 @@ int main(void) {
 				if(fill_pos > digit_pos)
 					digit_pos = fill_pos;
 			} else if(curr_chksum <= prev_chksum) {
-				// std::cerr << "<=" << std::endl;
-
 				// Gradually carry out the digits until checksum is smaller.
 				for(int i = 0; i < MAX_DIGITS; i++) {
 					// Wipe current digit.
