@@ -4,23 +4,23 @@
 #define MAX_DIGITS 1000
 
 int main(void) {
-	int days;
-	std::cin >> days;
+	int cases;
+	std::cin >> cases;
 
-	std::vector<int> chksum(days);
-	for(int day = 0; day < days; day++)
-		std::cin >> chksum[day];
+	while(cases-- > 0) {
+		int days;
+		std::cin >> days;
 
-	// Maximum of 1000 digits.
-	std::vector<int> digits(MAX_DIGITS);
-	int digit_pos = 0;
+		std::vector<int> chksum(days);
+		for(int day = 0; day < days; day++)
+			std::cin >> chksum[day];
 
-	int prev_chksum, curr_chksum, delta_chksum;
-	for(int day = 0; day < days; day++) {
-		if(day == 0) {
-			// Set the first checksum directly on the first day.
-			digits[digit_pos++] = chksum[0];
-		} else {
+		// Maximum of 1000 digits.
+		std::vector<int> digits(MAX_DIGITS);
+		int digit_pos = 0;
+
+		int prev_chksum = 0, curr_chksum, delta_chksum;
+		for(int day = 0; day < days; day++) {
 			curr_chksum = chksum[day];
 			if(curr_chksum > prev_chksum) {
 				// std::cerr << '>' << std::endl;
@@ -98,20 +98,19 @@ int main(void) {
 					}
 				}
 			}
+
+			// Update previous checksum.
+			prev_chksum = chksum[day];
+
+			// Print out the result.
+			for(int i = digit_pos - 1; i >= 0; i--)
+				std::cout << digits[i];
+
+			// Print out the delimiters.
+			if(day != days - 1)
+				std::cout << ' ';
 		}
-
-		// Update previous checksum.
-		prev_chksum = chksum[day];
-
-		// Print out the result.
-		for(int i = digit_pos - 1; i >= 0; i--)
-			std::cout << digits[i];
-
-		// Print out the delimiters.
-		if(day != days - 2)
-			std::cout << ' ';
-		else
-			std::cout << std::endl;
+		std::cout << std::endl;
 	}
 
 	return 0;
