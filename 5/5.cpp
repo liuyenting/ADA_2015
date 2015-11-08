@@ -53,6 +53,7 @@ int main(void) {
 					digit_pos = fill_pos;
 			} else if(curr_chksum <= prev_chksum) {
 				// Gradually carry out the digits until checksum is smaller.
+				int fill_pos;
 				for(int i = 0; i < MAX_DIGITS; i++) {
 					// Wipe current digit.
 					prev_chksum -= digits[i];
@@ -62,15 +63,13 @@ int main(void) {
 					int carry = 1;
 					for(int j = i+1; j < digit_pos && carry > 0; j++) {
 						// Carry in and update the checksum.
-						if(digits[j] + carry > 9) {
-							prev_chksum += 9 - digits[j];
-							carry -= 9 - digits[j];
-							digits[j] = 9;
-						} else {
-							prev_chksum += carry;
-							digits[j] += carry;
-							carry = 0;
-						}
+						int old_digit = digits[j];
+						digits[j] += carry;
+						carry = digits[j] / 10;
+						digits[j] %= 10;
+
+						// Update the checksum.
+						prev_chksum += digits[j] - old_digit;
 					}
 
 					// Increase the digit boundary if overflow.
@@ -78,6 +77,11 @@ int main(void) {
 						prev_chksum += carry;
 						digits[digit_pos++] += carry;
 					}
+
+					std::cerr << "[ ";
+					for(int i = digit_pos - 1; i >= 0; i--)
+						std::cout << digits[i];
+					std::cerr << " CS:" << prev_chksum << " ] ";
 
 					if(prev_chksum <= curr_chksum)
 						break;
@@ -89,6 +93,7 @@ int main(void) {
 					digits[i] = 9;
 					delta_chksum -= 9;
 					if(delta_chksum < 0) {
+						std::cerr << "DC ";
 						digits[i] += delta_chksum;
 						delta_chksum = 0;
 					}
