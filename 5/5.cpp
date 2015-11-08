@@ -108,7 +108,7 @@ int main(void) {
 			std::cout << digits[i];
 
 		// Print out the delimiters.
-		if(days != days - 1)
+		if(day != days - 2)
 			std::cout << ' ';
 		else
 			std::cout << std::endl;
