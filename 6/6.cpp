@@ -1,10 +1,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <utility>
 #include <algorithm>
-using namespace std;
-#define pii pair<int, int>
-#define pip pair<int, pii>
+
 #define F first
 #define S second
 
@@ -18,14 +17,14 @@ private:
 	int sz[MAX] = {0};
 
 public:
-	UnionFind(int n) { // class constructor
+	UnionFind(int n) {
 		for(int i = 0; i < n; ++i) {
 			id[i] = i;
 			sz[i] = 1;
 		}
 	}
 
-	int root(int i) {
+	int findRoot(int i) {
 		while(i != id[i]) {
 			id[i] = id[id[i]]; // path Compression
 			i = id[i];
@@ -33,13 +32,13 @@ public:
 		return i;
 	}
 
-	int find(int p, int q) {
-		return root(p)==root(q);
+	int hasCommonRoot(int p, int q) {
+		return findRoot(p)==findRoot(q);
 	}
 
 	void unite(int p, int q) {
-		int i = root(p);
-		int j = root(q);
+		int i = findRoot(p);
+		int j = findRoot(q);
 
 		if(sz[i] < sz[j]) {
 			id[i] = j;
@@ -51,7 +50,7 @@ public:
 	}
 };
 
-std::vector< pip > graph;
+std::vector<std::pair<int, std::pair<int, int> > > graph;
 int n, e;
 
 long long int Kruskal_MST() {
@@ -62,10 +61,9 @@ long long int Kruskal_MST() {
 	for(int i = 0; i < e; ++i) {
 		u = graph[i].S.F;
 		v = graph[i].S.S;
-		if(!UF.find(u, v) ) {
+		if(!UF.hasCommonRoot(u, v) ) {
 			UF.unite(u, v);
 			T += graph[i].F;
-			// printf("%d -> %d, w = %d, T = %d\n", u, v, graph[i].F, T);
 		}
 	}
 
@@ -78,14 +76,13 @@ long long int Kruskal_MST_RemoveEdge(int idx) {
 	long long int T = 0;
 
 	for(int i = 0; i < e; ++i) {
-		if(i==idx)
+		if(i == idx)
 			continue;
 		u = graph[i].S.F;
 		v = graph[i].S.S;
-		if(!UF.find(u, v) ) {
+		if(!UF.hasCommonRoot(u, v) ) {
 			UF.unite(u, v);
 			T += graph[i].F;
-			// printf("%d -> %d, w = %d, T = %d\n", u, v, graph[i].F, T);
 		}
 	}
 
@@ -112,16 +109,19 @@ int main() {
 			std::cin >> u >> v >> c;
 			u--;
 			v--;
-			graph[i] = pip( c, pii(u,v));
+			graph[i] = std::make_pair(c, std::make_pair(u, v));
 		}
 		// sort the edges in increasing order of cost
 		std::sort(graph.begin(), graph.end());
 
 		int W = Kruskal_MST();
-		must_c = 0; must_w = 0;
+		std::cout << "W = " << W << std::endl;
+		must_c = 0;
+		must_w = 0;
 		for(int i = 0; i < e; ++i) {
 			T = Kruskal_MST_RemoveEdge(i);
-			if(T > W) {
+			std::cout << "T = " << T << std::endl;
+			if(T != W) {
 				must_c++;
 				must_w += graph[i].F;
 			}
