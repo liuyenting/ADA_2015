@@ -1,27 +1,13 @@
-#include <cstdio>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <utility>
 #include <algorithm>
 
-#define pii std::pair<int, int>
-#define pip std::pair<int, pii>
-#define F first
-#define S second
-
-inline void inp(int *n) { // fast input function
-	*n = 0;
-	int ch = getchar_unlocked();
-	int sign = 1;
-	while(ch < '0' || ch > '9') {
-		if(ch == '-')
-			sign = -1;
-		ch = getchar_unlocked();
-	}
-	while(ch >= '0' && ch <= '9')
-		(*n) = ((*n)<<3) + ((*n)<<1) + ch - '0', ch = getchar_unlocked();
-	*n = (*n)*sign;
-}
+#define weight first
+#define edge second
+#define source first
+#define sink second
 
 const int MAX = 1000000;
 
@@ -66,7 +52,7 @@ public:
 	}
 };
 
-std::vector< pip > graph;
+std::vector<std::pair<int, std::pair<int, int> > > graph;
 int n, e;
 
 long long int Kruskal_MST() {
@@ -75,11 +61,11 @@ long long int Kruskal_MST() {
 	long long int T = 0;
 
 	for(int i = 0; i < e; ++i) {
-		u = graph[i].S.F;
-		v = graph[i].S.S;
+		u = graph[i].edge.source;
+		v = graph[i].edge.sink;
 		if(!UF.hasCommonRoot(u, v) ) {
 			UF.unite(u, v);
-			T += graph[i].F;
+			T += graph[i].weight;
 		}
 	}
 
@@ -94,11 +80,11 @@ long long int Kruskal_MST_RemoveEdge(int idx) {
 	for(int i = 0; i < e; ++i) {
 		if(i == idx)
 			continue;
-		u = graph[i].S.F;
-		v = graph[i].S.S;
+		u = graph[i].edge.source;
+		v = graph[i].edge.sink;
 		if(!UF.hasCommonRoot(u, v) ) {
 			UF.unite(u, v);
-			T += graph[i].F;
+			T += graph[i].weight;
 		}
 	}
 
@@ -113,19 +99,16 @@ int main() {
 	long long int must_w;
 
 	int cases;
-	inp(&cases);
+	std::cin >> cases;
 	while(cases-- >0) {
 		// n = number of nodes
 		// e = number of edges
-		inp(&n);
-		inp(&e);
+		std::cin >> n >> e;
 
 		graph.resize(e);
 
 		for(int i = 0; i < e; ++i) {
-			inp(&u);
-			inp(&v);
-			inp(&c);
+			std::cin >> u >> v >> c;
 			u--;
 			v--;
 			graph[i] = std::make_pair(c, std::make_pair(u, v));
@@ -140,11 +123,11 @@ int main() {
 			T = Kruskal_MST_RemoveEdge(i);
 			if(T != W) {
 				must_c++;
-				must_w += graph[i].F;
+				must_w += graph[i].weight;
 			}
 		}
 
-		printf("%d %d\n", must_c, must_w);
+		std::cout << must_c << ' ' << must_w << std::endl;
 	}
 
 	return 0;
