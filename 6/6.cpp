@@ -96,10 +96,15 @@ int main() {
 	int u, v, c;
 	long long int T;
 
+	int must_c;
+	long long int must_w;
+
 	int cases;
 	std::cin >> cases;
 	while(cases-- >0) {
-		std::cin >> n >> e;       // n = number of nodes, e = number of edges.
+		// n = number of nodes
+		// e = number of edges
+		std::cin >> n >> e;
 
 		graph.resize(e);
 
@@ -109,21 +114,21 @@ int main() {
 			v--;
 			graph[i] = pip( c, pii(u,v));
 		}
-		std::sort(graph.begin(), graph.end()); // sort the edges in increasing order of cost
+		// sort the edges in increasing order of cost
+		std::sort(graph.begin(), graph.end());
 
-		int W = Kruskal_MST();;
-		int cnt = 0, wei = 0;
+		int W = Kruskal_MST();
+		must_c = 0; must_w = 0;
 		for(int i = 0; i < e; ++i) {
 			T = Kruskal_MST_RemoveEdge(i);
 			if(T > W) {
-				cnt++;
-				wei += graph[i].F;
+				must_c++;
+				must_w += graph[i].F;
 			}
 		}
-		// printf("cnt = %d, prc = %d\n", cnt, wei);
-		printf("%d %d\n", cnt, wei);
+
+		std::cout << must_c << ' ' << must_w << std::endl;
 	}
 
-	// printf("%lld\n",T);
 	return 0;
 }
