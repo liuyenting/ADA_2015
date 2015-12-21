@@ -1,5 +1,5 @@
-#include "stdio.h"
-#include "string.h"
+#include <iostream>
+#include <string>
 #include <vector>
 #include <algorithm>
 using namespace std;
@@ -8,31 +8,17 @@ using namespace std;
 #define F first
 #define S second
 
-inline void inp(int *n) { // fast input function
-	*n = 0;
-	int ch = getchar_unlocked();
-	int sign = 1;
-	while(ch < '0' || ch > '9') {
-		if(ch == '-')
-			sign = -1;
-		ch = getchar_unlocked();
-	}
-	while(ch >= '0' && ch <= '9')
-		(*n) = ((*n)<<3) + ((*n)<<1) + ch - '0', ch = getchar_unlocked();
-	*n = (*n)*sign;
-}
-
 const int MAX = 1000000;
 
 // class implementing Union Find Data Structure with Path Compression
-class Union_Find
+class UnionFind
 {
 private:
 	int id[MAX] = {0};
 	int sz[MAX] = {0};
 
 public:
-	Union_Find(int n) { // class constructor
+	UnionFind(int n) { // class constructor
 		for(int i = 0; i < n; ++i) {
 			id[i] = i;
 			sz[i] = 1;
@@ -46,9 +32,11 @@ public:
 		}
 		return i;
 	}
+
 	int find(int p, int q) {
 		return root(p)==root(q);
 	}
+
 	void unite(int p, int q) {
 		int i = root(p);
 		int j = root(q);
@@ -65,11 +53,11 @@ public:
 
 std::vector< pip > graph;
 int n, e;
-long long int T;
 
-void Kruskal_MST() {
-	Union_Find UF(n);
+long long int Kruskal_MST() {
+	UnionFind UF(n);
 	int u, v;
+	long long int T = 0;
 
 	for(int i = 0; i < e; ++i) {
 		u = graph[i].S.F;
@@ -80,11 +68,14 @@ void Kruskal_MST() {
 			// printf("%d -> %d, w = %d, T = %d\n", u, v, graph[i].F, T);
 		}
 	}
+
+	return T;
 }
 
-void Kruskal_MST_RemoveEdge(int idx) {
-	Union_Find UF(n);
+long long int Kruskal_MST_RemoveEdge(int idx) {
+	UnionFind UF(n);
 	int u, v;
+	long long int T = 0;
 
 	for(int i = 0; i < e; ++i) {
 		if(i==idx)
@@ -92,22 +83,22 @@ void Kruskal_MST_RemoveEdge(int idx) {
 		u = graph[i].S.F;
 		v = graph[i].S.S;
 		if(!UF.find(u, v) ) {
-			//			printf("uniting %d and %d\n",u,v );
 			UF.unite(u, v);
 			T += graph[i].F;
 			// printf("%d -> %d, w = %d, T = %d\n", u, v, graph[i].F, T);
 		}
 	}
+
+	return T;
 }
 
 int main() {
 	int u, v, c;
+	long long int T;
 
-	int t;
-	std::cin >> t; // t = test cases.
-	while(t-->0) {
-		u = 0; v = 0; c = 0;
-
+	int cases;
+	std::cin >> cases;
+	while(cases-- >0) {
 		std::cin >> n >> e;       // n = number of nodes, e = number of edges.
 
 		graph.resize(e);
@@ -118,15 +109,12 @@ int main() {
 			v--;
 			graph[i] = pip( c, pii(u,v));
 		}
-		sort(graph.begin(), graph.end()); // sort the edges in increasing order of cost
+		std::sort(graph.begin(), graph.end()); // sort the edges in increasing order of cost
 
-		T = 0;
-		Kruskal_MST();
-		int W = T;
+		int W = Kruskal_MST();;
 		int cnt = 0, wei = 0;
 		for(int i = 0; i < e; ++i) {
-			T = 0;
-			Kruskal_MST_RemoveEdge(i);
+			T = Kruskal_MST_RemoveEdge(i);
 			if(T > W) {
 				cnt++;
 				wei += graph[i].F;
