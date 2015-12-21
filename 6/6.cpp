@@ -1,11 +1,27 @@
-#include <iostream>
+#include <cstdio>
 #include <string>
 #include <vector>
 #include <utility>
 #include <algorithm>
 
+#define pii std::pair<int, int>
+#define pip std::pair<int, pii>
 #define F first
 #define S second
+
+inline void inp(int *n) { // fast input function
+	*n = 0;
+	int ch = getchar_unlocked();
+	int sign = 1;
+	while(ch < '0' || ch > '9') {
+		if(ch == '-')
+			sign = -1;
+		ch = getchar_unlocked();
+	}
+	while(ch >= '0' && ch <= '9')
+		(*n) = ((*n)<<3) + ((*n)<<1) + ch - '0', ch = getchar_unlocked();
+	*n = (*n)*sign;
+}
 
 const int MAX = 1000000;
 
@@ -50,7 +66,7 @@ public:
 	}
 };
 
-std::vector<std::pair<int, std::pair<int, int> > > graph;
+std::vector< pip > graph;
 int n, e;
 
 long long int Kruskal_MST() {
@@ -97,16 +113,19 @@ int main() {
 	long long int must_w;
 
 	int cases;
-	std::cin >> cases;
+	inp(&cases);
 	while(cases-- >0) {
 		// n = number of nodes
 		// e = number of edges
-		std::cin >> n >> e;
+		inp(&n);
+		inp(&e);
 
 		graph.resize(e);
 
 		for(int i = 0; i < e; ++i) {
-			std::cin >> u >> v >> c;
+			inp(&u);
+			inp(&v);
+			inp(&c);
 			u--;
 			v--;
 			graph[i] = std::make_pair(c, std::make_pair(u, v));
@@ -115,19 +134,17 @@ int main() {
 		std::sort(graph.begin(), graph.end());
 
 		int W = Kruskal_MST();
-		// std::cout << "W = " << W << std::endl;
 		must_c = 0;
 		must_w = 0;
 		for(int i = 0; i < e; ++i) {
 			T = Kruskal_MST_RemoveEdge(i);
-			// std::cout << "T = " << T << std::endl;
 			if(T != W) {
 				must_c++;
 				must_w += graph[i].F;
 			}
 		}
 
-		std::cout << must_c << ' ' << must_w << std::endl;
+		printf("%d %d\n", must_c, must_w);
 	}
 
 	return 0;
