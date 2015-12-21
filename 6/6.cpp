@@ -115,12 +115,12 @@ int main() {
 		std::sort(graph.begin(), graph.end());
 
 		int W = Kruskal_MST();
-		std::cout << "W = " << W << std::endl;
+		// std::cout << "W = " << W << std::endl;
 		must_c = 0;
 		must_w = 0;
 		for(int i = 0; i < e; ++i) {
 			T = Kruskal_MST_RemoveEdge(i);
-			std::cout << "T = " << T << std::endl;
+			// std::cout << "T = " << T << std::endl;
 			if(T != W) {
 				must_c++;
 				must_w += graph[i].F;
