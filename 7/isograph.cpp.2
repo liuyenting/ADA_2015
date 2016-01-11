@@ -1,0 +1,823 @@
+#include <iostream>Â 
+#include <fstream>Â 
+#include <string>Â 
+#include <vector>Â 
+#include <map>Â 
+#include <set>Â 
+#include <algorithm>Â 
+using namespace std;Â 
+
+vector<vector<int> > dijkstra(vector<vector<int> > graph);Â 
+vector<vector<int> > reindex(vector<vector<int> > graph, vector<int> index);Â 
+vector<int> inv(vector<int> index);Â 
+vector<int> transform(map<vector<int>,vector<int> > signmatrixA,Â Â 
+map<vector<int>,vector<int> > signmatrixB, vector<int> vertexA,Â Â 
+vector<int> vertexB, vector<int> isoB);Â 
+ifstream infileA("graphA.txt");Â 
+ifstream infileB("graphB.txt");Â 
+ofstream outfile("result.txt");Â 
+
+int main()Â 
+{Â 
+cout<<"The Graph Isomorphism Algorithm"<<endl;Â 
+cout<<"by Ashay Dharwadker and John-Tagore Tevet"<<endl;Â 
+cout<<"http://www.dharwadker.org/tevet/isomorphism/"<<endl;Â 
+cout<<"Copyright (c) 2009"<<endl;Â 
+
+//Process Graph AÂ 
+cout<<"Computing the Sign Matrix of Graph A..."<<endl;Â 
+int i, j, k, q, N1, N2, nA; infileA>>nA;Â 
+//Read adjacency matrix of graph A from graphA.txtÂ 
+vector< vector<int> > rgraphA; int valA;Â 
+for(i=0; i<nA; i++)Â 
+{Â 
+vector<int> rowA;Â 
+for(j=0; j<nA; j++)Â 
+{Â 
+infileA>>valA;Â 
+rowA.push_back(valA);Â 
+}Â 
+rgraphA.push_back(rowA);Â 
+}Â 
+//End readingÂ 
+
+//Initial sortingÂ 
+vector<vector<int> > distanceA;Â 
+vector<vector<int> > neighborA;Â 
+for(i=0; i<rgraphA.size(); i++)Â 
+{Â 
+vector<int> rowdistanceA, rowneighborA;Â Â 
+for(j=0; j<rgraphA[i].size(); j++)Â 
+{Â 
+if(rgraphA[i][j]==1) rowneighborA.push_back(j);Â 
+vector<int> indexdA;Â 
+for(k=0; k<rgraphA.size(); k++) indexdA.push_back(k);Â 
+indexdA[0]=i; indexdA[i]=0;Â 
+vector<vector<int> > dgraphA=reindex(rgraphA,indexdA);Â 
+vector<vector<int> > dpathA=dijkstra(dgraphA);Â 
+int ddA=-1;Â 
+for(k=0; k<dpathA.size(); k++)Â 
+if(inv(indexdA)[dpathA[k][dpathA[k].size()-1]]==j)Â 
+{ddA=dpathA[k].size()-1; break;}Â 
+rowdistanceA.push_back(ddA);Â Â 
+}Â Â 
+distanceA.push_back(rowdistanceA);Â 
+neighborA.push_back(rowneighborA);Â 
+}Â 
+
+vector<vector<int> > sequenceA;Â 
+for(i=0; i<rgraphA.size(); i++)Â 
+{Â 
+vector<int> mutualdistanceA;Â 
+for(j=0; j<neighborA[i].size()-1; j++)Â 
+for(k=j+1; k<neighborA[i].size(); k++)Â 
+mutualdistanceA.push_back(distanceA[neighborA[i][j]][neighborA[i][k]]);Â Â 
+sort(mutualdistanceA.begin(), mutualdistanceA.end());Â 
+vector<int> tmutualA;Â 
+for(k=0; k<nA*nA-1-mutualdistanceA.size(); k++) tmutualA.push_back(0);Â 
+for(k=0; k<mutualdistanceA.size(); k++) tmutualA.push_back(mutualdistanceA[k]);Â 
+sequenceA.push_back(tmutualA);Â Â 
+}Â 
+
+map<vector<int>,int> sorterA;Â 
+for(i=0; i<sequenceA.size(); i++) sorterA[sequenceA[i]]=i;Â 
+vector<int> mainindexA;Â 
+map<vector<int>,int>::iterator sitA=sorterA.begin();Â 
+while(sitA!=sorterA.end())Â 
+{Â 
+vector<int>vsitA=sitA->first;Â 
+for(i=0; i<sequenceA.size(); i++)Â 
+if(sequenceA[i]==vsitA) mainindexA.push_back(i);Â 
+sitA++;Â Â 
+}Â 
+
+vector< vector<int> > graphA=reindex(rgraphA,mainindexA);Â 
+
+//Compute degree sequenceÂ 
+vector<int> degA;Â 
+int sumA;Â 
+for(i=0; i<nA; i++)Â 
+{Â 
+sumA=0;Â 
+for(j=0; j<nA; j++)Â 
+{Â 
+if(graphA[i][j]==1) sumA++;Â 
+}Â 
+degA.push_back(sumA);Â 
+}Â 
+vector<int> sorted_degA=degA;Â 
+sort(sorted_degA.begin(),sorted_degA.end());Â 
+
+//Pair graphsÂ 
+map<vector<int>,set<int> > PA;Â 
+map<vector<int>,int> dA;Â 
+map<vector<int>,int> ntA;Â 
+map<vector<int>,int> eA;Â 
+
+for(N1=0; N1<graphA.size(); N1++)Â 
+for(N2=0; N2<graphA[N1].size(); N2++)Â 
+{Â 
+int signA=-1;Â 
+vector<vector<int> > tgraphA=graphA;Â 
+if(graphA[N1][N2]!=0) {tgraphA[N1][N2]=0; tgraphA[N2][N1]=0; signA=1;}Â 
+//Compute shortest paths from vertex 1Â Â 
+vector<vector<int> > shortest_path1A;Â 
+vector<int> index1A; for(q=0; q<nA; q++) index1A.push_back(q);Â Â 
+index1A[0]=N1; index1A[N1]=0;Â Â 
+vector< vector<int> > temp_graph1A=reindex(tgraphA, index1A);Â Â 
+vector< vector<int> > p1A=dijkstra(temp_graph1A);Â 
+for(i=0; i<p1A.size(); i++)Â 
+{Â 
+vector<int> tpath1A;Â 
+for(j=0; j<p1A[i].size(); j++) {tpath1A.push_back(inv(index1A)[p1A[i][j]]);}Â 
+shortest_path1A.push_back(tpath1A);Â 
+}Â 
+//Compute shortest paths from vertex 2Â Â 
+vector<vector<int> > shortest_path2A;Â 
+vector<int> index2A; for(q=0; q<nA; q++) index2A.push_back(q);Â Â 
+index2A[0]=N2; index2A[N2]=0;Â Â 
+vector< vector<int> > temp_graph2A=reindex(tgraphA, index2A);Â Â 
+vector< vector<int> > p2A=dijkstra(temp_graph2A);Â 
+for(i=0; i<p2A.size(); i++)Â 
+{Â 
+vector<int> tpath2A;Â 
+for(j=0; j<p2A[i].size(); j++) {tpath2A.push_back(inv(index2A)[p2A[i][j]]);}Â 
+shortest_path2A.push_back(tpath2A);Â 
+}Â 
+//Compute distance between vertex 1 and vertex 2Â 
+int DA=0;Â 
+for(i=0; i<shortest_path1A.size(); i++)Â 
+if(shortest_path1A[i][shortest_path1A[i].size()-1]==N2)Â 
+{DA=shortest_path1A[i].size()-1; break;}Â Â 
+//Compute shortest paths between vertex1 and vertex 2Â 
+vector<vector<int> > shortest_path12A;Â 
+for(i=0; i<shortest_path1A.size(); i++)Â 
+for(j=0; j<shortest_path2A.size(); j++)Â 
+{Â 
+if(shortest_path1A[i][shortest_path1A[i].size()-1]==Â 
+shortest_path2A[j][shortest_path2A[j].size()-1])Â 
+{Â 
+vector<int> temppathA=shortest_path1A[i];Â 
+for(k=shortest_path2A[j].size()-2; k>=0; k--)Â Â 
+temppathA.push_back(shortest_path2A[j][k]);Â 
+if(temppathA.size()-1==DA)Â Â 
+shortest_path12A.push_back(temppathA);Â 
+}Â Â 
+}Â 
+//Pair graph for vertex 1 and vertex 2Â 
+bool checkA=false;Â 
+set<int> SA;Â 
+for(i=0; i<shortest_path12A.size(); i++)Â 
+{Â 
+if(shortest_path12A[i][0]==N1 &&Â Â 
+shortest_path12A[i][shortest_path12A[i].size()-1]==N2)Â 
+{Â 
+checkA=true;Â 
+for(j=0; j<shortest_path12A[i].size(); j++)Â 
+SA.insert(shortest_path12A[i][j]);Â 
+}Â 
+}Â 
+vector<int> VA; VA.push_back(N1); VA.push_back(N2);Â 
+PA[VA]=SA;Â 
+//Distance between vertex 1 and vertex 2Â 
+if(checkA) dA[VA]=signA*DA;Â 
+else dA[VA]=signA;Â 
+//Count number of vertices in pair graphÂ 
+ntA[VA]=SA.size();Â 
+//Count number of edges in pair graphÂ 
+int countA=0;Â 
+for(i=0; i<nA; i++)Â 
+for(j=i+1; j<nA; j++)Â 
+{Â 
+bool findpairA=false;Â 
+set<int>::iterator i1A,i2A;Â 
+i1A=SA.find(i); i2A=SA.find(j);Â 
+if(i1A!=SA.end() && i2A!=SA.end()) findpairA=true;Â 
+if(findpairA && graphA[i][j]!=0) countA++;Â 
+}Â 
+eA[VA]=countA;Â Â 
+}Â 
+
+//Make frequency table (sign frequency vectors)Â 
+map<vector<int>,int>::iterator itA;Â 
+map<vector<int>, vector<int> > frequencyA;Â 
+vector<int> dummyA; for(i=0; i<nA; i++) dummyA.push_back(0);Â 
+for(i=0; i<nA; i++)Â 
+{Â Â 
+for(j=0; j<nA; j++)Â 
+{Â 
+vector<int> vecA;Â 
+vector<int> indA; indA.push_back(i); indA.push_back(j);Â 
+itA=dA.find(indA);Â 
+vecA.push_back(itA->second);Â 
+itA=ntA.find(indA);Â Â 
+vecA.push_back(itA->second);Â 
+itA=eA.find(indA);Â Â 
+vecA.push_back(itA->second);Â 
+frequencyA[vecA]=dummyA;Â 
+}Â 
+}Â 
+
+map<vector<int>,vector<int> >::iterator ittA=frequencyA.begin();Â 
+while(ittA!=frequencyA.end())Â 
+{Â 
+for(i=0; i<nA; i++)Â 
+{Â Â 
+int fA=0;Â 
+for(j=0; j<nA; j++)Â 
+{Â 
+vector<int> vecA;Â 
+vector<int> indA; indA.push_back(i); indA.push_back(j);Â 
+itA=dA.find(indA);Â 
+vecA.push_back(itA->second);Â 
+itA=ntA.find(indA);Â Â 
+vecA.push_back(itA->second);Â 
+itA=eA.find(indA);Â Â 
+vecA.push_back(itA->second);Â 
+if(vecA==ittA->first) fA++;Â 
+}Â 
+ittA->second[i]=fA;Â 
+}Â 
+ittA++;Â 
+}Â 
+
+//Transpose and sort (canonical form of sign matrix)Â 
+vector<vector<int> > vssA;Â 
+ittA=frequencyA.begin();Â 
+while(ittA!=frequencyA.end())Â 
+{Â 
+vector<int> vsA=ittA->second;Â 
+vssA.push_back(vsA);Â 
+ittA++;Â Â 
+}Â 
+vector<vector<int> > tvssA;Â 
+vector<int> rowA;Â 
+for(i=0; i<vssA.size(); i++) rowA.push_back(0);Â 
+for(j=0; j<vssA[0].size(); j++) tvssA.push_back(rowA);Â 
+for(i=0; i<vssA.size(); i++)Â 
+for(j=0; j<vssA[0].size(); j++)Â 
+tvssA[j][i]=vssA[i][j];Â 
+for(i=0; i<tvssA.size(); i++) tvssA[i].push_back(i);Â 
+sort(tvssA.begin(),tvssA.end());Â 
+
+
+//Determine equivalence classes kÂ 
+vector<int> classA;Â Â 
+vector<int> clA, dlA;Â 
+int cA=0;Â 
+int icA=0;Â 
+dlA=tvssA[icA]; dlA.pop_back();Â 
+while(icA<nA)Â 
+{Â 
+clA=tvssA[icA]; clA.pop_back();Â 
+if(clA==dlA) classA.push_back(cA);Â 
+else {dlA=clA; cA++; classA.push_back(cA);}Â 
+icA++;Â Â 
+}Â 
+
+//Final VerticesÂ 
+vector<int> vertexA;Â 
+for(i=0; i<nA; i++)Â 
+vertexA.push_back(tvssA[i][tvssA[i].size()-1]);Â 
+
+//Final Sign MatrixÂ 
+map<vector<int>,vector<int> > signmatrixA;Â 
+for(i=0; i<nA; i++)Â 
+for(j=0; j<nA; j++)Â 
+{Â 
+vector<int> indA;Â Â 
+indA.push_back(vertexA[i]);Â Â 
+indA.push_back(vertexA[j]);Â Â 
+vector<int> siA;Â 
+itA=dA.find(indA); siA.push_back(itA->second);Â 
+itA=ntA.find(indA); siA.push_back(itA->second);Â 
+itA=eA.find(indA); siA.push_back(itA->second);Â 
+signmatrixA[indA]=siA;Â 
+}Â 
+
+
+//Process Graph BÂ 
+cout<<"Computing the Sign Matrix of Graph B..."<<endl;Â 
+int nB; infileB>>nB;Â 
+//Read adjacency matrix of graph B from graphB.txtÂ 
+vector< vector<int> > rgraphB; int valB;Â 
+for(i=0; i<nB; i++)Â 
+{Â 
+vector<int> rowB;Â 
+for(j=0; j<nB; j++)Â 
+{Â 
+infileB>>valB;Â 
+rowB.push_back(valB);Â 
+}Â 
+rgraphB.push_back(rowB);Â 
+}Â 
+//End readingÂ 
+
+//Initial sortingÂ 
+vector<vector<int> > distanceB;Â 
+vector<vector<int> > neighborB;Â 
+for(i=0; i<rgraphB.size(); i++)Â 
+{Â 
+vector<int> rowdistanceB, rowneighborB;Â Â 
+for(j=0; j<rgraphB[i].size(); j++)Â 
+{Â 
+if(rgraphB[i][j]==1) rowneighborB.push_back(j);Â 
+vector<int> indexdB;Â 
+for(k=0; k<rgraphB.size(); k++) indexdB.push_back(k);Â 
+indexdB[0]=i; indexdB[i]=0;Â 
+vector<vector<int> > dgraphB=reindex(rgraphB,indexdB);Â 
+vector<vector<int> > dpathB=dijkstra(dgraphB);Â 
+int ddB=-1;Â 
+for(k=0; k<dpathB.size(); k++)Â 
+if(inv(indexdB)[dpathB[k][dpathB[k].size()-1]]==j)Â 
+{ddB=dpathB[k].size()-1; break;}Â 
+rowdistanceB.push_back(ddB);Â Â 
+}Â Â 
+distanceB.push_back(rowdistanceB);Â 
+neighborB.push_back(rowneighborB);Â 
+}Â 
+
+vector<vector<int> > sequenceB;Â 
+for(i=0; i<rgraphB.size(); i++)Â 
+{Â 
+vector<int> mutualdistanceB;Â 
+for(j=0; j<neighborB[i].size()-1; j++)Â 
+for(k=j+1; k<neighborB[i].size(); k++)Â 
+mutualdistanceB.push_back(distanceB[neighborB[i][j]][neighborB[i][k]]);Â Â 
+sort(mutualdistanceB.begin(), mutualdistanceB.end());Â 
+vector<int> tmutualB;Â 
+for(k=0; k<nB*nB-1-mutualdistanceB.size(); k++) tmutualB.push_back(0);Â 
+for(k=0; k<mutualdistanceB.size(); k++) tmutualB.push_back(mutualdistanceB[k]);Â 
+sequenceB.push_back(tmutualB);Â Â 
+}Â 
+
+map<vector<int>,int> sorterB;Â 
+for(i=0; i<sequenceB.size(); i++) sorterB[sequenceB[i]]=i;Â 
+vector<int> mainindexB;Â 
+map<vector<int>,int>::iterator sitB=sorterB.begin();Â 
+while(sitB!=sorterB.end())Â 
+{Â 
+vector<int>vsitB=sitB->first;Â 
+for(i=0; i<sequenceB.size(); i++)Â 
+if(sequenceB[i]==vsitB) mainindexB.push_back(i);Â 
+sitB++;Â Â 
+}Â 
+
+vector< vector<int> > graphB=reindex(rgraphB,mainindexB);Â 
+
+//Compute degree sequenceÂ 
+vector<int> degB;Â 
+int sumB;Â 
+for(i=0; i<nB; i++)Â 
+{Â 
+sumB=0;Â 
+for(j=0; j<nB; j++)Â 
+{Â 
+if(graphB[i][j]==1) sumB++;Â 
+}Â 
+degB.push_back(sumB);Â 
+}Â 
+vector<int> sorted_degB=degB;Â 
+sort(sorted_degB.begin(),sorted_degB.end());Â 
+
+//Pair graphsÂ 
+map<vector<int>,set<int> > PB;Â 
+map<vector<int>,int> dB;Â 
+map<vector<int>,int> ntB;Â 
+map<vector<int>,int> eB;Â 
+
+for(N1=0; N1<graphB.size(); N1++)Â 
+for(N2=0; N2<graphB[N1].size(); N2++)Â 
+{Â 
+int signB=-1;Â 
+vector<vector<int> > tgraphB=graphB;Â 
+if(graphB[N1][N2]!=0) {tgraphB[N1][N2]=0; tgraphB[N2][N1]=0; signB=1;}Â 
+//Compute shortest paths from vertex 1Â Â 
+vector<vector<int> > shortest_path1B;Â 
+vector<int> index1B; for(q=0; q<nB; q++) index1B.push_back(q);Â Â 
+index1B[0]=N1; index1B[N1]=0;Â Â 
+vector< vector<int> > temp_graph1B=reindex(tgraphB, index1B);Â Â 
+vector< vector<int> > p1B=dijkstra(temp_graph1B);Â 
+for(i=0; i<p1B.size(); i++)Â 
+{Â 
+vector<int> tpath1B;Â 
+for(j=0; j<p1B[i].size(); j++) {tpath1B.push_back(inv(index1B)[p1B[i][j]]);}Â 
+shortest_path1B.push_back(tpath1B);Â 
+}Â 
+//Compute shortest paths from vertex 2Â Â 
+vector<vector<int> > shortest_path2B;Â 
+vector<int> index2B; for(q=0; q<nB; q++) index2B.push_back(q);Â Â 
+index2B[0]=N2; index2B[N2]=0;Â Â 
+vector< vector<int> > temp_graph2B=reindex(tgraphB, index2B);Â Â 
+vector< vector<int> > p2B=dijkstra(temp_graph2B);Â 
+for(i=0; i<p2B.size(); i++)Â 
+{Â 
+vector<int> tpath2B;Â 
+for(j=0; j<p2B[i].size(); j++) {tpath2B.push_back(inv(index2B)[p2B[i][j]]);}Â 
+shortest_path2B.push_back(tpath2B);Â 
+}Â 
+//Compute distance between vertex 1 and vertex 2Â 
+int DB=0;Â 
+for(i=0; i<shortest_path1B.size(); i++)Â 
+if(shortest_path1B[i][shortest_path1B[i].size()-1]==N2)Â 
+{DB=shortest_path1B[i].size()-1; break;}Â Â 
+//Compute shortest paths between vertex 1 and vertex 2Â 
+vector<vector<int> > shortest_path12B;Â 
+for(i=0; i<shortest_path1B.size(); i++)Â 
+for(j=0; j<shortest_path2B.size(); j++)Â 
+{Â 
+if(shortest_path1B[i][shortest_path1B[i].size()-1]==Â 
+shortest_path2B[j][shortest_path2B[j].size()-1])Â 
+{Â 
+vector<int> temppathB=shortest_path1B[i];Â 
+for(k=shortest_path2B[j].size()-2; k>=0; k--)Â Â 
+temppathB.push_back(shortest_path2B[j][k]);Â 
+if(temppathB.size()-1==DB)Â Â 
+shortest_path12B.push_back(temppathB);Â 
+}Â Â 
+}Â 
+//Pair graph for vertex 1 and vertex 2Â 
+bool checkB=false;Â 
+set<int> SB;Â 
+for(i=0; i<shortest_path12B.size(); i++)Â 
+{Â 
+if(shortest_path12B[i][0]==N1 &&Â Â 
+shortest_path12B[i][shortest_path12B[i].size()-1]==N2)Â 
+{Â 
+checkB=true;Â 
+for(j=0; j<shortest_path12B[i].size(); j++)Â 
+SB.insert(shortest_path12B[i][j]);Â 
+}Â 
+}Â 
+vector<int> VB; VB.push_back(N1); VB.push_back(N2);Â 
+PB[VB]=SB;Â 
+//Distance between vertex 1 and vertex 2Â 
+if(checkB) dB[VB]=signB*DB;Â 
+else dB[VB]=signB;Â 
+//Count number of vertices in pair graphÂ 
+ntB[VB]=SB.size();Â 
+//Count number of edges in pair graphÂ 
+int countB=0;Â 
+for(i=0; i<nB; i++)Â 
+for(j=i+1; j<nB; j++)Â 
+{Â 
+bool findpairB=false;Â 
+set<int>::iterator i1B,i2B;Â 
+i1B=SB.find(i); i2B=SB.find(j);Â 
+if(i1B!=SB.end() && i2B!=SB.end()) findpairB=true;Â 
+if(findpairB && graphB[i][j]!=0) countB++;Â 
+}Â 
+eB[VB]=countB;Â Â 
+}Â 
+
+//Make frequency table (sign frequency vectors)Â 
+map<vector<int>,int>::iterator itB;Â 
+map<vector<int>, vector<int> > frequencyB;Â 
+vector<int> dummyB; for(i=0; i<nB; i++) dummyB.push_back(0);Â 
+for(i=0; i<nB; i++)Â 
+{Â Â 
+for(j=0; j<nB; j++)Â 
+{Â 
+vector<int> vecB;Â 
+vector<int> indB; indB.push_back(i); indB.push_back(j);Â 
+itB=dB.find(indB);Â 
+vecB.push_back(itB->second);Â 
+itB=ntB.find(indB);Â Â 
+vecB.push_back(itB->second);Â 
+itB=eB.find(indB);Â Â 
+vecB.push_back(itB->second);Â 
+frequencyB[vecB]=dummyB;Â 
+}Â 
+}Â 
+
+map<vector<int>,vector<int> >::iterator ittB=frequencyB.begin();Â 
+while(ittB!=frequencyB.end())Â 
+{Â 
+for(i=0; i<nB; i++)Â 
+{Â Â 
+int fB=0;Â 
+for(j=0; j<nB; j++)Â 
+{Â 
+vector<int> vecB;Â 
+vector<int> indB; indB.push_back(i); indB.push_back(j);Â 
+itB=dB.find(indB);Â 
+vecB.push_back(itB->second);Â 
+itB=ntB.find(indB);Â Â 
+vecB.push_back(itB->second);Â 
+itB=eB.find(indB);Â Â 
+vecB.push_back(itB->second);Â 
+if(vecB==ittB->first) fB++;Â 
+}Â 
+ittB->second[i]=fB;Â 
+}Â 
+ittB++;Â 
+}Â 
+
+//Transpose and sort (canonical form of sign matrix)Â 
+vector<vector<int> > vssB;Â 
+ittB=frequencyB.begin();Â 
+while(ittB!=frequencyB.end())Â 
+{Â 
+vector<int> vsB=ittB->second;Â 
+vssB.push_back(vsB);Â 
+ittB++;Â Â 
+}Â 
+vector<vector<int> > tvssB;Â 
+vector<int> rowB;Â 
+for(i=0; i<vssB.size(); i++) rowB.push_back(0);Â 
+for(j=0; j<vssB[0].size(); j++) tvssB.push_back(rowB);Â 
+for(i=0; i<vssB.size(); i++)Â 
+for(j=0; j<vssB[0].size(); j++)Â 
+tvssB[j][i]=vssB[i][j];Â 
+for(i=0; i<tvssB.size(); i++) tvssB[i].push_back(i);Â 
+sort(tvssB.begin(),tvssB.end());Â 
+
+//Determine equivalence classes kÂ 
+vector<int> classB;Â Â 
+vector<int> clB, dlB;Â 
+int cB=0;Â 
+int icB=0;Â 
+dlB=tvssB[icB]; dlB.pop_back();Â 
+while(icB<nB)Â 
+{Â 
+clB=tvssB[icB]; clB.pop_back();Â 
+if(clB==dlB) classB.push_back(cB);Â 
+else {dlB=clB; cB++; classB.push_back(cB);}Â 
+icB++;Â Â 
+}Â 
+
+//Final VerticesÂ 
+
+
+vector<int> vertexB;Â 
+for(i=0; i<nB; i++)Â 
+vertexB.push_back(tvssB[i][tvssB[i].size()-1]);Â 
+
+//Final Sign MatrixÂ 
+map<vector<int>,vector<int> > signmatrixB;Â 
+for(i=0; i<nB; i++)Â 
+for(j=0; j<nB; j++)Â 
+{Â 
+vector<int> indB;Â Â 
+indB.push_back(vertexB[i]);Â Â 
+indB.push_back(vertexB[j]);Â Â 
+vector<int> siB;Â 
+itB=dB.find(indB); siB.push_back(itB->second);Â 
+itB=ntB.find(indB); siB.push_back(itB->second);Â 
+itB=eB.find(indB); siB.push_back(itB->second);Â 
+signmatrixB[indB]=siB;Â 
+}Â 
+
+//Isomorphism IndexÂ 
+vector<int> fixisoB, isoB;Â Â 
+for(i=0; i<nB; i++) fixisoB.push_back(i); isoB=fixisoB;Â 
+bool isomorphic = false;Â 
+bool possibly_isomorphic = false;Â 
+if(sorted_degA==sorted_degB){Â 
+vector<vector<int> > checksignA;Â 
+ittA=frequencyA.begin();Â 
+while(ittA!=frequencyA.end())Â 
+{Â 
+vector<int> checksignrowA;Â 
+vector<int> wsA=ittA->first;Â 
+for(i=0; i<wsA.size(); i++) checksignrowA.push_back(wsA[i]);Â 
+vector<int> vsA=ittA->second;Â 
+for(i=0; i<vsA.size(); i++) checksignrowA.push_back(vsA[vertexA[i]]);Â 
+checksignA.push_back(checksignrowA);Â 
+ittA++;Â Â 
+}Â 
+vector<vector<int> > checksignB;Â 
+ittB=frequencyB.begin();Â 
+while(ittB!=frequencyB.end())Â 
+{Â 
+vector<int> checksignrowB;Â 
+vector<int> wsB=ittB->first;Â 
+for(i=0; i<wsB.size(); i++) checksignrowB.push_back(wsB[i]);Â 
+vector<int> vsB=ittB->second;Â 
+for(i=0; i<vsB.size(); i++) checksignrowB.push_back(vsB[vertexB[i]]);Â 
+checksignB.push_back(checksignrowB);Â 
+ittB++;Â Â 
+}Â 
+if(checksignA==checksignB) {possibly_isomorphic=true;}Â 
+}Â 
+
+if(possibly_isomorphic)Â 
+{Â 
+//Find isomorphismÂ 
+for(int J=0; J<nB; J++)Â 
+{Â 
+if(isomorphic) break;Â 
+isoB=fixisoB; isoB[0]=fixisoB[J]; isoB[J]=fixisoB[0];Â Â 
+for(int I=0; I<nB*nB; I++)Â 
+{Â 
+vector<int> oldisoB=isoB;Â 
+isoB=transform(signmatrixA,signmatrixB,vertexA,vertexB, isoB);Â 
+
+
+bool quit=false, mismatch=false;Â 
+for(int ii=0; ii<nB; ii++)Â 
+{Â 
+if(quit) break;Â Â 
+for(int jj=ii+1; jj<nB; jj++)Â 
+{Â 
+vector<int> tindA, ta;Â Â 
+tindA.push_back(vertexA[ii]); tindA.push_back(vertexA[jj]);Â 
+vector<int> tindB, tb;Â Â 
+tindB.push_back(vertexB[isoB[ii]]);Â Â 
+tindB.push_back(vertexB[isoB[jj]]);Â Â 
+ittA=signmatrixA.find(tindA); ta=ittA->second;Â Â 
+
+
+ittB=signmatrixB.find(tindB); tb=ittB->second;Â Â 
+if(ta!=tb) {mismatch=true; quit=true; break;}Â 
+}Â Â 
+}Â Â 
+if(isoB==oldisoB)Â 
+{Â 
+if(!mismatch) isomorphic=true;Â 
+break;Â 
+}Â 
+}Â 
+}Â 
+
+}Â 
+
+if(!possibly_isomorphic)Â Â 
+{Â 
+outfile<<"Graph A and Graph B cannot be isomorphic because "Â 
+<<"they have different sign frequency vectors in lexicographic order."Â 
+<<endl;Â Â 
+cout<<"Graph A and Graph B cannot be isomorphic because "Â 
+<<"they have different sign frequency vectors in lexicographic order."Â 
+<<endl;Â 
+}Â 
+if(possibly_isomorphic && !isomorphic)Â Â 
+{Â 
+outfile<<"Graph A and Graph B have the same sign frequency vectors "Â 
+<<"in lexicographic order but cannot be isomorphic."<<endl;Â Â 
+cout<<"Graph A and Graph B have the same sign frequency vectors "Â 
+<<"in lexicographic order but cannot be isomorphic."<<endl;Â 
+}Â 
+if(possibly_isomorphic && isomorphic)Â Â 
+{Â 
+outfile<<"Graph A and Graph B are isomorphic."<<endl<<endl;Â Â 
+cout<<"Graph A and Graph B are isomorphic."<<endl;Â 
+outfile<<"Isomorphism f:V(A)->V(B);"<<endl<<endl;Â 
+for(int i=0; i<nA; i++)Â Â 
+{Â Â 
+outfile<<"f("<<inv(mainindexA)[vertexA[i]]+1<<")\t=\t";Â Â 
+outfile<<inv(mainindexB)[vertexB[isoB[i]]]+1<<endl;Â 
+}Â Â 
+}Â 
+
+cout<<"See result.txt for details."<<endl;Â 
+return 0;Â 
+}Â 
+
+
+
+//FunctionsÂ 
+
+vector<vector<int> > dijkstra(vector<vector<int> > graph)Â 
+{Â 
+vector<vector<int> > table;Â 
+int i, j, k, n=graph.size();Â Â 
+//Initialize TableÂ 
+const int infinity=n;Â 
+vector<bool> known;Â 
+for(i=0; i<n; i++) known.push_back(false);Â 
+vector<int> d;Â 
+d.push_back(0);Â 
+for(i=1; i<n; i++) d.push_back(infinity);Â 
+vector<int> p;Â 
+for(i=0; i<n; i++) p.push_back(-1);Â 
+//End initializationÂ 
+
+//IterationÂ 
+for(k=0; k<n; k++)Â 
+{Â 
+//Find min of d for unknown verticesÂ 
+int min=0;Â 
+while(known[min]==true)min++;Â 
+for(i=0; i<n; i++)Â 
+if(known[i]==false && d[i]<d[min])min=i;Â 
+//End findÂ 
+//Update TableÂ 
+known[min]=true;Â 
+for(j=0; j<n; j++)Â 
+{Â 
+if(graph[min][j]!=0 && d[j]>d[min]+graph[min][j] && known[j]==false)Â 
+{Â 
+d[j]=d[min]+graph[min][j];Â 
+p[j]=min;Â 
+}Â 
+}Â 
+//End updateÂ 
+}Â 
+table.push_back(d);Â 
+table.push_back(p);Â 
+vector<vector<int> > path;Â 
+for(i=0; i<n; i++)Â 
+{Â 
+vector<int> temp_path;Â 
+vector<int> temp;Â 
+k=i;Â 
+while(k!=-1)Â 
+{Â 
+temp.push_back(k);Â 
+k=table[1][k];Â 
+}Â 
+temp_path.push_back(temp[temp.size()-1]);Â 
+for(j=temp.size()-2; j>=0; j--)Â 
+{Â 
+temp_path.push_back(temp[j]);Â 
+}Â 
+path.push_back(temp_path);Â 
+}Â Â 
+return path;Â Â 
+}Â 
+
+vector<vector<int> > reindex(vector<vector<int> > graph, vector<int> index)Â 
+{Â 
+vector<vector<int> > temp_graph=graph;Â 
+for(int i=0; i<graph.size(); i++)Â 
+for(int j=0; j<graph[i].size(); j++)Â 
+temp_graph[index[i]][index[j]]=graph[i][j];Â 
+return temp_graph;Â Â 
+}Â 
+
+vector<int> inv(vector<int> index)Â 
+{Â 
+vector<int> inverse=index;Â 
+for(int i=0; i<index.size(); i++)Â 
+inverse[index[i]]=i;Â 
+return inverse;Â Â 
+}Â 
+
+vector<int> transform(map<vector<int>,vector<int> > signmatrixA,Â Â 
+Â  map<vector<int>,vector<int> > signmatrixB,Â Â 
+Â  vector<int> vertexA, vector<int> vertexB,Â Â 
+Â  vector<int> isoB)Â 
+{Â 
+vector<int> iso=isoB;Â 
+map<vector<int>,vector<int> >::iterator it;Â 
+int k, n=iso.size();Â 
+bool found=false;Â 
+bool check=true;Â 
+for(int i=0; i<n; i++)Â 
+{Â 
+if(found) break;Â 
+for(int j=i+1; j<n; j++)Â 
+{Â 
+vector<int> indA, a;Â Â 
+indA.push_back(vertexA[i]); indA.push_back(vertexA[j]);Â 
+vector<int> indB, b;Â Â 
+
+indB.push_back(vertexB[isoB[i]]);Â Â 
+indB.push_back(vertexB[isoB[j]]);Â Â 
+it=signmatrixA.find(indA); a=it->second;Â Â 
+it=signmatrixB.find(indB); b=it->second;Â Â 
+if(a!=b)Â 
+{Â 
+k=j;Â Â 
+vector<int> temp_ind=indB;Â 
+while(k<n-1 && check==true)Â 
+{Â 
+k++;Â Â 
+temp_ind[1]=vertexB[isoB[k]];Â 
+it=signmatrixB.find(temp_ind); b=it->second;Â Â 
+//checkÂ 
+if(a==b)Â 
+{Â 
+vector<int> temp_iso=isoB;Â 
+temp_iso[j]=isoB[k];Â  temp_iso[k]=isoB[j];Â 
+int ti=-1, tj=-1;Â Â 
+bool quit=false;Â 
+for(int ii=0; ii<n; ii++)Â 
+{Â 
+if(quit) break;Â Â 
+for(int jj=ii+1; jj<n; jj++)Â 
+{Â 
+vector<int> tindA, ta;Â Â 
+tindA.push_back(vertexA[ii]); tindA.push_back(vertexA[jj]);Â 
+vector<int> tindB, tb;Â Â 
+tindB.push_back(vertexB[temp_iso[ii]]);Â Â 
+tindB.push_back(vertexB[temp_iso[jj]]);Â Â 
+it=signmatrixA.find(tindA); ta=it->second;Â Â 
+it=signmatrixB.find(tindB); tb=it->second;Â Â 
+if(ta!=tb) {ti=ii; tj=jj; quit=true; break;}Â 
+if(k==n-1 && ti==-1) {check=false; quit=true; break;}Â 
+}Â Â 
+}Â 
+if(ti==-1 || ti>i || (ti==i && tj>j)) check=false;Â 
+}Â 
+//end checkÂ Â 
+}Â 
+if(!check){found=true; iso[j]=isoB[k]; iso[k]=isoB[j];Â Â 
+break;}Â 
+if(check) return iso;Â 
+}Â Â 
+}Â 
+}Â 
+return iso;Â Â 
+}
